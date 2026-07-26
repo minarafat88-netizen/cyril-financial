@@ -13,7 +13,7 @@ const ALLOWED_CONTENT_TYPES = new Set([
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get("cyril_auth_token")?.value;
     const session = token ? verifyAuthToken(token) : null;
 

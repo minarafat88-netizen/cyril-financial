@@ -8,7 +8,7 @@ import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get("cyril_auth_token")?.value;
     
     if (!token) {

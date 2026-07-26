@@ -23,7 +23,7 @@ export function verifyAuthToken(token: string): JWTPayload | null {
 }
 
 export async function getCurrentUserSession() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get("cyril_auth_token")?.value;
 
   if (!token) return null;
