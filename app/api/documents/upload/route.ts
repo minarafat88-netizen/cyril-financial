@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
     // التحقق من الـ Cookie الخاصة بالتوكن للتأكد من تسجيل الدخول
     const cookieHeader = request.headers.get("cookie") || "";
-    const tokenMatch = cookieHeader.match(/cynl_auth_token=([^;]+)/);
+    const tokenMatch = cookieHeader.match(/cyril_auth_token=([^;]+)/);
     
     if (!tokenMatch) {
       return NextResponse.json({ success: false, error: "Unauthorized document upload" }, { status: 401 });
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     }
 
     // رابط التخزين الوهمي أو المربوط بنظام الـ Storage الخاص بك
-    const secureStorageUrl = `https://storage.cynlfinancial.com/vault/${session.userId}/${file.name}`;
+    const secureStorageUrl = `https://storage.cyrilfinancial.com/vault/${session.userId}/${file.name}`;
 
     const docRef = await addDoc(collection(db, "documents"), {
       applicationId,

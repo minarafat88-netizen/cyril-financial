@@ -1,32 +1,34 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: ["class"],
   content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
       colors: {
-        navy: "#0A192F",
-        "navy-dark": "#060F1E",
-        "navy-light": "#11263F",
-        emerald: "#10B981",
-        "emerald-dark": "#059669",
-        gold: "#D4AF37",
-        slate: "#64748B",
+        navy: {
+          DEFAULT: "#173152",
+          dark: "#060F23",
+          light: "#162B56",
+        },
+        silver: {
+          light: "#DBDAD8",
+          DEFAULT: "#D1D5DB",
+          dark: "#9CA3AF",
+        },
+        surface: "#F8FAFC",
       },
-      fontFamily: {
-        heading: ["var(--font-montserrat)", "sans-serif"],
-        sans: ["var(--font-inter)", "sans-serif"],
+      backgroundImage: {
+        'silver-gradient': 'linear-gradient(135deg, #FFFFFF 0%, #E5E7EB 50%, #D1D5DB 100%)',
+        'silver-button': 'linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 100%)',
+        'navy-gradient': 'linear-gradient(180deg, #173152 0%, #060F23 100%)',
       },
       boxShadow: {
-        luxury: "0 20px 40px -15px rgba(10, 25, 47, 0.08)",
-        glass: "0 8px 32px 0 rgba(10, 25, 47, 0.12)",
-        soft: "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
+        'card-soft': '0 10px 30px -5px rgba(11, 27, 61, 0.05)',
+        'icon-emboss': 'inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 4px 10px rgba(0, 0, 0, 0.08)',
       },
     },
   },

@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://cynlfinancial.com";
+  const baseUrl = "https://cyrilfinancial.com";
 
   const staticRoutes = [
     { route: "", priority: 1.0, changeFrequency: "daily" as const },

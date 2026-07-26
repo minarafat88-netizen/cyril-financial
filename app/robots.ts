@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://cynlfinancial.com/sitemap.xml",
+    sitemap: "https://cyrilfinancial.com/sitemap.xml",
   };
 }

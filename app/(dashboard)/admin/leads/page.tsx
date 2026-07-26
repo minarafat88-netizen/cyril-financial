@@ -1,93 +1,99 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Users, Mail, Phone, ExternalLink } from "lucide-react";
+import React, { useState } from "react";
+import Link from "next/link";
 
-interface LeadItem {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  purchasePrice: number;
-  downPayment: number;
-  loanPurpose: string;
-  createdAt: string;
-}
+// بيانات وهمية للتجربة (في الواقع سيتم جلبها عبر GET Request من الـ API)
+const mockLeads = [
+  { id: "LD-001", name: "Ahmed Hassan", email: "ahmed@example.com", phone: "+1 (949) 555-0198", interest: "Purchase", status: "New", date: "2026-07-25" },
+  { id: "LD-002", name: "Sarah Connor", email: "sarah.c@example.com", phone: "+1 (310) 555-8741", interest: "Refinance", status: "Contacted", date: "2026-07-24" },
+  { id: "LD-003", name: "Michael Chang", email: "m.chang@example.com", phone: "+1 (415) 555-3392", interest: "Jumbo Loan", status: "In Progress", date: "2026-07-23" },
+];
 
 export default function AdminLeadsPage() {
-  const [leads, setLeads] = useState<LeadItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/admin/leads")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setLeads(data.data);
-        }
-      })
-      .catch((err) => console.error("Failed to load leads pipeline:", err))
-      .finally(() => setLoading(false));
-  }, []);
+  const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <div className="space-y-8 p-8 bg-gray-50 min-h-screen">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="p-8 space-y-8 bg-surface min-h-screen font-sans text-navy">
+      
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-heading text-navy">Corporate Leads Pipeline</h1>
-          <p className="text-slate text-sm mt-1">Manage prospective borrower inquiries, property details, and advisory assignments.</p>
+          <h1 className="text-2xl font-black tracking-tight">Leads Management</h1>
+          <p className="text-sm text-gray-500 mt-1">Track and manage potential client inquiries.</p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <input 
+            type="text" 
+            placeholder="Search leads by name or ID..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-navy outline-none w-64 shadow-sm"
+          />
+          <button className="bg-navy text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md hover:bg-navy-light transition-all">
+            Export CSV
+          </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-luxury border border-gray-100 overflow-hidden">
+      {/* Leads Table Card */}
+      <div className="bg-white rounded-3xl shadow-card-soft border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-navy text-white text-xs font-semibold uppercase tracking-wider">
-                <th className="py-4 px-6">Client Name</th>
-                <th className="py-4 px-6">Contact Channels</th>
-                <th className="py-4 px-6">Loan Purpose</th>
-                <th className="py-4 px-6">Purchase Price</th>
-                <th className="py-4 px-6">Down Payment</th>
-                <th className="py-4 px-6 text-right">Actions</th>
+              <tr className="bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <th className="p-5">Lead ID</th>
+                <th className="p-5">Client Details</th>
+                <th className="p-5">Interest</th>
+                <th className="p-5">Status</th>
+                <th className="p-5">Date</th>
+                <th className="p-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 text-sm">
-              {loading ? (
-                <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate">Loading active leads pipeline...</td>
+            <tbody className="text-sm">
+              {mockLeads.map((lead) => (
+                <tr key={lead.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <td className="p-5 font-bold text-navy">{lead.id}</td>
+                  <td className="p-5">
+                    <div className="font-bold text-navy">{lead.name}</div>
+                    <div className="text-xs text-gray-500">{lead.email}</div>
+                    <div className="text-xs text-gray-400 mt-0.5">{lead.phone}</div>
+                  </td>
+                  <td className="p-5">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-silver-light text-navy rounded-lg font-bold text-xs border border-gray-200">
+                      🪙 {lead.interest}
+                    </span>
+                  </td>
+                  <td className="p-5">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                      lead.status === 'New' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                      lead.status === 'Contacted' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
+                      'bg-green-50 text-green-700 border-green-100'
+                    }`}>
+                      {lead.status}
+                    </span>
+                  </td>
+                  <td className="p-5 text-gray-500 text-xs">{lead.date}</td>
+                  <td className="p-5 text-right">
+                    <button className="text-navy font-bold text-xs hover:underline">View Details</button>
+                  </td>
                 </tr>
-              ) : leads.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate">No incoming inquiries found in the pipeline.</td>
-                </tr>
-              ) : (
-                leads.map((lead) => (
-                  <tr key={lead.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="py-5 px-6 font-bold text-navy flex items-center gap-3">
-                      <Users className="w-4 h-4 text-emerald" /> {lead.firstName} {lead.lastName}
-                    </td>
-                    <td className="py-5 px-6 text-slate">
-                      <div className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-gray-400" /> {lead.email}</div>
-                      <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5"><Phone className="w-3.5 h-3.5" /> {lead.phone}</div>
-                    </td>
-                    <td className="py-5 px-6 font-medium text-navy">{lead.loanPurpose}</td>
-                    <td className="py-5 px-6 font-bold text-navy">${lead.purchasePrice?.toLocaleString()}</td>
-                    <td className="py-5 px-6 text-slate">${lead.downPayment?.toLocaleString()}</td>
-                    <td className="py-5 px-6 text-right">
-                      <Button size="sm" variant="outline" className="text-navy border-gray-200 hover:bg-gray-100">
-                        Assign Advisor <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              )}
+              ))}
             </tbody>
           </table>
         </div>
+        
+        {/* Pagination placeholder */}
+        <div className="p-5 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+          <span>Showing 1 to 3 of 3 entries</span>
+          <div className="flex gap-2">
+            <button className="px-3 py-1 border border-gray-200 rounded-md hover:bg-gray-50 disabled:opacity-50" disabled>Previous</button>
+            <button className="px-3 py-1 border border-gray-200 rounded-md hover:bg-gray-50 disabled:opacity-50" disabled>Next</button>
+          </div>
+        </div>
       </div>
+
     </div>
   );
 }

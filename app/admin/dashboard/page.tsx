@@ -15,7 +15,7 @@ export default function AdminDashboardPage() {
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-gold/20 text-gold rounded-full text-xs font-semibold uppercase tracking-wider mb-2">
               <ShieldCheck className="w-3.5 h-3.5" /> Executive Control Center
             </div>
-            <h1 className="text-3xl font-bold font-heading">Cynl Financial Enterprise Command</h1>
+            <h1 className="text-3xl font-bold font-heading">Cyril Financial Enterprise Command</h1>
             <p className="text-gray-300 text-sm mt-1">Real-time pipeline analytics, lead routing, and portfolio loan management.</p>
           </div>
         </div>

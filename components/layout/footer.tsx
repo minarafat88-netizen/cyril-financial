@@ -1,60 +1,66 @@
+import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export function Footer() {
   return (
-    <footer className="bg-navy text-white pt-16 pb-12 border-t border-navy-light">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
-        <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-2xl font-bold font-heading tracking-wide text-gold">CYNL FINANCIAL</h2>
-          <p className="text-gray-300 text-sm max-w-sm leading-relaxed">
-            Institutional private banking standards combined with bespoke residential and commercial mortgage advisory across California.
-          </p>
-          <div className="text-xs text-gray-400 space-y-1 pt-2">
-            <p>CA DRE License #02198421</p>
-            <p>NMLS Unique Identifier #2481023</p>
+    <footer className="bg-navy text-white py-16 px-6 border-t border-white/10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
+        
+        <div className="space-y-4">
+          {/* استدعاء ملف logo2 مباشرة وإلغاء اسم الشركة النصي */}
+          <div className="flex items-center">
+            <Image
+              src="/images/logo2.png"
+              alt="Cyril Financial Group logo"
+              width={180}
+              height={70}
+              style={{ width: "auto", height: "auto" }}
+              className="object-contain max-h-16"
+            />
           </div>
+          <p className="text-xs text-silver-dark leading-relaxed">
+            Empowering buyers, homeowners, and investors with transparent, fast, and secure digital mortgage solutions.
+          </p>
         </div>
 
         <div>
-          <h3 className="text-sm font-bold uppercase tracking-wider text-gold mb-4">Loan Programs</h3>
-          <ul className="space-y-2 text-sm text-gray-300">
-            <li><Link href="/loans/jumbo" className="hover:text-white transition-colors">Jumbo Financing</Link></li>
-            <li><Link href="/loans/bank-statement" className="hover:text-white transition-colors">Bank Statement Loans</Link></li>
-            <li><Link href="/loans/dscr" className="hover:text-white transition-colors">DSCR Investment Loans</Link></li>
-            <li><Link href="/loans/conventional" className="hover:text-white transition-colors">Conventional Loans</Link></li>
-            <li><Link href="/loans/va" className="hover:text-white transition-colors">VA Loans</Link></li>
+          <h4 className="text-xs font-bold uppercase tracking-widest text-silver mb-4">
+            Loan Programs
+          </h4>
+          <ul className="space-y-2.5 text-xs text-silver-dark">
+            <li><Link href="/loans/purchase" className="hover:text-white transition">Home Purchase</Link></li>
+            <li><Link href="/loans/refinance" className="hover:text-white transition">Refinance & Cash-Out</Link></li>
+            <li><Link href="/loans/jumbo" className="hover:text-white transition">Jumbo Loans</Link></li>
+            <li><Link href="/loans/non-qm" className="hover:text-white transition">Non-QM Programs</Link></li>
           </ul>
         </div>
 
         <div>
-          <h3 className="text-sm font-bold uppercase tracking-wider text-gold mb-4">Calculators</h3>
-          <ul className="space-y-2 text-sm text-gray-300">
-            <li><Link href="/calculators/mortgage-calculator" className="hover:text-white transition-colors">Mortgage Calculator</Link></li>
-            <li><Link href="/calculators/affordability-calculator" className="hover:text-white transition-colors">Affordability Calculator</Link></li>
-            <li><Link href="/rates" className="hover:text-white transition-colors">Live Mortgage Rates</Link></li>
-            <li><Link href="/process" className="hover:text-white transition-colors">Loan Process Timeline</Link></li>
+          <h4 className="text-xs font-bold uppercase tracking-widest text-silver mb-4">
+            Tools & Portals
+          </h4>
+          <ul className="space-y-2.5 text-xs text-silver-dark">
+            <li><Link href="/calculators/mortgage-calculator" className="hover:text-white transition">Mortgage Calculator</Link></li>
+            <li><Link href="/rates" className="hover:text-white transition">Live Market Rates</Link></li>
+            <li><Link href="/portal" className="hover:text-white transition">Secure Client Vault</Link></li>
+            <li><Link href="/apply" className="hover:text-white transition">Pre-Approval Funnel</Link></li>
           </ul>
         </div>
 
         <div>
-          <h3 className="text-sm font-bold uppercase tracking-wider text-gold mb-4">Institutional</h3>
-          <ul className="space-y-2 text-sm text-gray-300">
-            <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
-            <li><Link href="/about/team" className="hover:text-white transition-colors">Meet Our Team</Link></li>
-            <li><Link href="/about/reviews" className="hover:text-white transition-colors">Client Reviews</Link></li>
-            <li><Link href="/contact" className="hover:text-white transition-colors">Contact Advisory</Link></li>
-          </ul>
+          <h4 className="text-xs font-bold uppercase tracking-widest text-silver mb-4">
+            Legal & Compliance
+          </h4>
+          <p className="text-xs text-silver-dark leading-relaxed">
+            Equal Housing Lender. All loans subject to credit approval and underwriting guidelines.
+          </p>
         </div>
+
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-navy-light/60 flex flex-col md:flex-row items-center justify-between text-xs text-gray-400 space-y-4 md:space-y-0">
-        <p>© 2026 Cynl Financial Group, Inc. All rights reserved. Equal Housing Opportunity.</p>
-        <div className="flex space-x-6">
-          <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-          <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
-          <Link href="/accessibility" className="hover:text-white transition-colors">Accessibility (WCAG 2.2 AA)</Link>
-          <Link href="/licensing" className="hover:text-white transition-colors">Licensing Disclosures</Link>
-        </div>
+      <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/10 text-center text-xs text-silver-dark">
+        © {new Date().getFullYear()} Cyril Financial Group. All rights reserved.
       </div>
     </footer>
   );

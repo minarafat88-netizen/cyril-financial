@@ -14,7 +14,7 @@ const ALLOWED_CONTENT_TYPES = new Set([
 export async function POST(request: Request) {
   try {
     const cookieStore = cookies();
-    const token = cookieStore.get("cynl_auth_token")?.value;
+    const token = cookieStore.get("cyril_auth_token")?.value;
     const session = token ? verifyAuthToken(token) : null;
 
     if (!session || (session.role !== "SUPER_ADMIN" && session.role !== "LOAN_OFFICER")) {

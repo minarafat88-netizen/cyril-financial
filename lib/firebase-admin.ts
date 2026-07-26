@@ -24,7 +24,7 @@ if (!getApps().length) {
           clientEmail,
           privateKey: privateKey!,
         }),
-        storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "cynlfinancial.appspot.com",
+        storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "cyrilfinancial.appspot.com",
       });
 
       adminStorage = getStorage();

@@ -16,13 +16,13 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Cynl Financial Group | California Luxury Mortgage Lending",
+  title: "Cyril Financial Group | California Luxury Mortgage Lending",
   description:
     "Institutional private banking standards and boutique white-glove mortgage advisory for California homebuyers, high-net-worth clients, and real estate investors.",
-  metadataBase: new URL("https://cynlfinancial.com"),
-  applicationName: "Cynl Financial Group",
-  authors: [{ name: "Cynl Financial Group" }],
-  creator: "Cynl Financial Group",
+  metadataBase: new URL("https://cyrilfinancial.com"),
+  applicationName: "Cyril Financial Group",
+  authors: [{ name: "Cyril Financial Group" }],
+  creator: "Cyril Financial Group",
   keywords: [
     "California mortgage lender",
     "luxury mortgage financing",
@@ -41,14 +41,14 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://cynlfinancial.com",
+    canonical: "https://cyrilfinancial.com",
   },
   openGraph: {
-    title: "Cynl Financial Group | Luxury Mortgage Lending",
+    title: "Cyril Financial Group | California Luxury Mortgage Lending",
     description:
       "Jumbo, Bank Statement, DSCR, and Conventional financing across Los Angeles and California.",
-    url: "https://cynlfinancial.com",
-    siteName: "Cynl Financial Group",
+    url: "https://cyrilfinancial.com",
+    siteName: "Cyril Financial Group",
     locale: "en_US",
     type: "website",
     images: [
@@ -56,13 +56,13 @@ export const metadata: Metadata = {
         url: "/images/hero-luxury-estate.png",
         width: 1200,
         height: 700,
-        alt: "Cynl Financial Group luxury California mortgage lending",
+        alt: "Cyril Financial Group luxury California mortgage lending",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Cynl Financial Group | California Luxury Mortgage Lending",
+    title: "Cyril Financial Group | California Luxury Mortgage Lending",
     description:
       "Boutique mortgage advisory, jumbo loans, and California financing solutions for high-net-worth buyers and investors.",
     images: ["/images/hero-luxury-estate.png"],

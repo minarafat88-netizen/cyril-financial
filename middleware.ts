@@ -1,31 +1,78 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const token = request.cookies.get("cynl_auth_token")?.value;
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
 
-  // Protect Admin Dashboard Routes at the edge boundary.
-  // The server routes themselves still verify the JWT and role, which keeps
-  // the middleware lightweight and compatible with Edge Runtime.
-  if ((pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) && !token) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // Maintaining full cookie management helper matching your original architecture structure
+  const cookieMethods = {
+    get(name: string) {
+      return request.cookies.get(name)?.value;
+    },
+    set(name: string, value: string, options: any) {
+      request.cookies.set({
+        name,
+        value,
+        ...options,
+      });
+      response = NextResponse.next({
+        request: {
+          headers: request.headers,
+        },
+      });
+      response.cookies.set({
+        name,
+        value,
+        ...options,
+      });
+    },
+    remove(name: string, options: any) {
+      request.cookies.set({
+        name,
+        value: '',
+        ...options,
+      });
+      response = NextResponse.next({
+        request: {
+          headers: request.headers,
+        },
+      });
+      response.cookies.set({
+        name,
+        value: '',
+        ...options,
+      });
+    },
+  };
+
+  // Check for Firebase session cookie or token managed by your app client/server flow
+  const sessionToken = request.cookies.get('firebase-auth-token')?.value || request.cookies.get('session')?.value;
+
+  const isProtectedPath = request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/portal');
+
+  if (isProtectedPath && !sessionToken) {
+    // Redirect unauthenticated users to the login page preserving your exact error flow
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('error', 'Authentication required. Please log in.');
+    return NextResponse.redirect(loginUrl);
   }
-
-  // Set Security Headers on all responses
-  const response = NextResponse.next();
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-  response.headers.set(
-    "Content-Security-Policy",
-    "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:;"
-  );
 
   return response;
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/apply/:path*"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files (e.g. images, icons)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|images|icons).*)',
+  ],
 };

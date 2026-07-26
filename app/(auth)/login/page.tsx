@@ -1,109 +1,85 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ShieldCheck, Lock, ArrowRight } from "lucide-react";
+import React, { useState } from "react";
 import Link from "next/link";
-
-const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-type LoginValues = z.infer<typeof loginSchema>;
+import { SiteLogo } from "@/components/ui/site-logo";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const form = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = async (data: LoginValues) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || "Authentication failed");
-      }
-
-      // Redirect based on user role or default to portal / admin dashboard
-      if (result.user.role === "SUPER_ADMIN" || result.user.role === "LOAN_OFFICER") {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/portal");
-      }
-      router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Invalid credentials or server error");
-    } finally {
-      setLoading(false);
-    }
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // سيتم هنا ربط دالة المصادقة مع Firebase لاحقاً
+    console.log("Logging in with:", email, password);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-6">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-luxury p-8 border border-gray-100 space-y-6">
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald/10 text-emerald rounded-full text-xs font-semibold uppercase tracking-wider">
-            <Lock className="w-3.5 h-3.5" /> Secure Portal Login
-          </div>
-          <h1 className="text-2xl font-bold font-heading text-navy">Cynl Financial Enterprise</h1>
-          <p className="text-slate text-xs">Enter your administrative or borrower credentials</p>
+    <div className="min-h-screen bg-surface flex flex-col justify-center items-center p-4 font-sans">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-card-soft border border-gray-100 overflow-hidden">
+        
+        {/* Header / Brand */}
+        <div className="bg-navy p-8 text-center flex flex-col items-center">
+          <Link href="/" className="flex items-center gap-2 group mb-4">
+            <SiteLogo className="w-12 h-12 rounded-xl shadow-icon-emboss" size={48} />
+          </Link>
+          <h2 className="text-2xl font-bold text-white tracking-wide">Welcome Back</h2>
+          <p className="text-xs text-silver-dark mt-2">
+            Sign in to access your secure client portal.
+          </p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 text-xs p-3 rounded-xl text-center">
-            {error}
+        {/* Login Form */}
+        <div className="p-8">
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div>
+              <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="client@example.com"
+                required
+                className="w-full px-4 py-3 bg-surface border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-navy outline-none transition-all"
+              />
+            </div>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-xs font-bold text-navy uppercase tracking-wider">
+                  Password
+                </label>
+                <Link href="/forgot-password" className="text-xs text-blue-600 font-bold hover:underline">
+                  Forgot?
+                </Link>
+              </div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="w-full px-4 py-3 bg-surface border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-navy outline-none transition-all"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full mt-2 bg-navy text-white font-bold py-3.5 rounded-xl text-sm shadow-md hover:bg-navy-light active:scale-95 transition-all"
+            >
+              Sign In
+            </button>
+          </form>
+
+          <div className="mt-8 text-center">
+            <p className="text-xs text-gray-500">
+              Don't have an account?{" "}
+              <Link href="/register" className="text-navy font-bold hover:underline">
+                Start your application
+              </Link>
+            </p>
           </div>
-        )}
-
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate uppercase tracking-wider mb-1">Email Address</label>
-            <Input type="email" {...form.register("email")} placeholder="admin@cynlfinancial.com" />
-            {form.formState.errors.email && (
-              <p className="text-red-500 text-[11px] mt-1">{form.formState.errors.email.message}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate uppercase tracking-wider mb-1">Password</label>
-            <Input type="password" {...form.register("password")} placeholder="••••••••••••" />
-            {form.formState.errors.password && (
-              <p className="text-red-500 text-[11px] mt-1">{form.formState.errors.password.message}</p>
-            )}
-          </div>
-
-          <Button type="submit" disabled={loading} className="w-full bg-emerald hover:bg-emerald-dark text-white font-semibold py-3.5 rounded-xl shadow-glass mt-2">
-            {loading ? "Authenticating..." : "Sign In Securely"}
-          </Button>
-        </form>
-
-        <div className="text-center pt-2">
-          <Link href="/" className="text-xs text-slate hover:text-emerald transition-colors">
-            ← Return to Public Website
-          </Link>
         </div>
       </div>
     </div>
