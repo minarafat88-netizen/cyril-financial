@@ -1,35 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
-// قاعدة المعرفة الرسمية للشركة (تعتمد حصراً على بيانات الموقع والخدمات المقدمة)
-const knowledgeBase = [
-  {
-    keywords: ["purchase", "home", "buy", "down payment"],
-    response: "For Home Purchase loans, we offer conventional rates for first-time and seasoned buyers with flexible down payment options starting as low as 3% to 20%."
-  },
-  {
-    keywords: ["refinance", "lower", "monthly payment", "cash-out"],
-    response: "Our Refinance and Cash-Out programs are designed to lower your monthly payments, consolidate high-interest debt, or tap into your home equity."
-  },
-  {
-    keywords: ["jumbo", "luxury", "high-net-worth"],
-    response: "Jumbo Loans provide high-value property financing up to $3M+ tailored specifically for high-net-worth borrowers and luxury estates."
-  },
-  {
-    keywords: ["non-qm", "self-employed", "bank statement", "investor"],
-    response: "Non-QM loans offer alternative qualification methods, including 12-to-24 month bank statements and DSCR investor solutions without personal tax return requirements."
-  },
-  {
-    keywords: ["rate", "interest", "apr"],
-    response: "Today's benchmark rates start at 5.500% for 15-year fixed and 6.125% for 30-year fixed conforming loans. Visit our Rates page for full disclosures."
-  },
-  {
-    keywords: ["contact", "office", "phone", "email", "address"],
-    response: "Our corporate office is located at 2900 Bristol Street Building H, Suite 101, Costa Mesa, CA 92626. You can reach our advisory team at advisory@cyrilfinancial.com or call +1 (949) 777-6516."
-  }
-];
+interface KnowledgeItem {
+  keywords: string[];
+  response: string;
+}
 
 export function AiSupportChat() {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,6 +14,19 @@ export function AiSupportChat() {
     { sender: "ai", text: "Hello! I am your CFG AI Assistant. How can I help you with our mortgage programs today?" }
   ]);
   const [input, setInput] = useState("");
+  const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeItem[]>([]);
+
+  useEffect(() => {
+    const fetchKnowledgeBase = async () => {
+      // ملاحظة: يجب إنشاء واجهة API لجلب هذه البيانات
+      const response = await fetch('/api/ai-knowledge');
+      const data = await response.json();
+      if (data.success) {
+        setKnowledgeBase(data.data);
+      }
+    };
+    fetchKnowledgeBase();
+  }, []);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +42,7 @@ export function AiSupportChat() {
       const lowerInput = userMessage.toLowerCase();
       let matchedResponse = "I can only assist with inquiries related to Cyril Financial Group's loan programs, rates, and services. Please check our loan options or contact our advisory team for specific requests.";
 
-      for (const item of knowledgeBase) {
+      for (const item of knowledgeBase) { // استخدام قاعدة المعرفة الديناميكية
         if (item.keywords.some(keyword => lowerInput.includes(keyword))) {
           matchedResponse = item.response;
           break;

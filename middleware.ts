@@ -1,11 +1,38 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  // إنشاء سياسة أمان المحتوى (CSP)
+  const cspHeader = `
+    default-src 'self';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline';
+    img-src * data:;
+    font-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+  `.replace(/\s{2,}/g, ' ').trim(); // إزالة المسافات الزائدة
+
+  // إضافة ترويسات الأمان الأساسية
+  const headers = new Headers(request.headers);
+  headers.set('X-Content-Type-Options', 'nosniff');
+  headers.set('X-Frame-Options', 'DENY');
+  headers.set('X-XSS-Protection', '1; mode=block');
+  headers.set('Content-Security-Policy', cspHeader);
+
   let response = NextResponse.next({
     request: {
-      headers: request.headers,
+      // تمرير الترويسات الجديدة إلى الطلبات اللاحقة
+      headers: headers,
     },
   });
+
+  // تطبيق نفس الترويسات على الاستجابة النهائية
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Content-Security-Policy', cspHeader);
 
   // Maintaining full cookie management helper matching your original architecture structure
   const cookieMethods = {

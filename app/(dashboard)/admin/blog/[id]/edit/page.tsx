@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,38 +16,58 @@ export default function EditBlogPostPage() {
   const [category, setCategory] = useState("Jumbo Lending");
   const [status, setStatus] = useState("Published");
   const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // محاكاة جلب بيانات المقال بناءً على الـ ID
   useEffect(() => {
-    // في الواقع الحقيقي، هنا يتم جلب البيانات من الـ Backend أو Firebase باستخدام الـ id
-    if (id === "1") {
-      setTitle("California Jumbo Loan Strategies for High-Net-Worth Buyers in 2026");
-      setCategory("Jumbo Lending");
-      setStatus("Published");
-      setContent("Detailed content about California jumbo loan strategies...");
-    } else if (id === "2") {
-      setTitle("Navigating Bank Statement Qualifying for Self-Employed Entrepreneurs");
-      setCategory("Bespoke Financing");
-      setStatus("Draft");
-      setContent("Detailed content about self-employed bank statement programs...");
-    } else {
-      setTitle("Sample Article Title");
-      setCategory("Market Commentary");
-      setStatus("Draft");
-      setContent("Sample content here...");
-    }
+    if (!id) return;
+
+    const fetchArticle = async () => {
+      setLoading(true);
+      try {
+        // ملاحظة: يجب إنشاء واجهة API لجلب بيانات المقال
+        const response = await fetch(`/api/admin/blog/${id}`);
+        const result = await response.json();
+        if (result.success) {
+          setTitle(result.data.title);
+          setCategory(result.data.category);
+          setStatus(result.data.status);
+          setContent(result.data.content);
+        } else {
+          setError(result.error || "Failed to load article data.");
+        }
+      } catch (err) {
+        setError("An unexpected error occurred.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticle();
   }, [id]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    // محاكاة عملية تحديث البيانات وحفظها
-    setTimeout(() => {
-      setLoading(false);
-      router.push("/admin/blog");
-    }, 800);
+    setSaving(true);
+    try {
+      // ملاحظة: يجب إنشاء واجهة API لتحديث بيانات المقال
+      const response = await fetch(`/api/admin/blog/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, category, status, content }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        router.push("/admin/blog");
+      } else {
+        alert(`Error: ${result.error}`);
+      }
+    } catch (err) {
+      alert("An unexpected error occurred while saving.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -66,6 +86,10 @@ export default function EditBlogPostPage() {
         </div>
       </div>
 
+      {loading && <div className="text-center p-8">Loading article...</div>}
+      {error && <div className="bg-red-100 text-red-700 p-4 rounded-xl text-center">{error}</div>}
+
+      {!loading && !error && (
       <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-luxury border border-gray-100 p-8 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
@@ -138,13 +162,14 @@ export default function EditBlogPostPage() {
           </Link>
           <Button
             type="submit"
-            disabled={loading}
+            disabled={saving}
             className="bg-emerald hover:bg-emerald-dark text-white font-semibold px-6 py-2.5 rounded-xl shadow-glass flex items-center gap-2"
           >
-            <Save className="w-4 h-4" /> {loading ? "Updating..." : "Update Article"}
+            <Save className="w-4 h-4" /> {saving ? "Updating..." : "Update Article"}
           </Button>
         </div>
       </form>
+      )}
     </div>
   );
 }

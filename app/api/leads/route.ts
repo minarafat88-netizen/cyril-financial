@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export async function POST(req: Request) {
   try {
@@ -13,12 +15,21 @@ export async function POST(req: Request) {
       );
     }
 
-    // هنا يتم إدراج كود الحفظ في قاعدة البيانات (Firebase)
-    // كمثال توضيحي نقوم بطباعة البيانات في الخادم
-    console.log("New Lead Received: ", { firstName, lastName, email, interest });
+    // حفظ البيانات في مجموعة 'leads' في Firestore
+    const leadRef = await addDoc(collection(db, "leads"), {
+      firstName,
+      lastName,
+      email,
+      phone,
+      interest: interest || "Not specified",
+      message: message || "",
+      status: "New", // الحالة الأولية للـ lead
+      createdAt: serverTimestamp(),
+    });
 
+    console.log("New Lead captured and saved with ID: ", leadRef.id);
     return NextResponse.json(
-      { success: true, message: "Lead captured successfully.", leadId: "LD-" + Date.now() },
+      { success: true, message: "Thank you! Your request has been received. An advisor will contact you shortly.", leadId: leadRef.id },
       { status: 201 }
     );
 

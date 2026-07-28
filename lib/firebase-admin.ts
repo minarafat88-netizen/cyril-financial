@@ -1,39 +1,30 @@
-import { initializeApp, getApps, cert } from "firebase-admin/app";
-import { getStorage, type Storage } from "firebase-admin/storage";
+import { initializeApp, getApps, getApp, cert } from "firebase-admin/app";
+import { getFirestore, type Firestore } from "firebase-admin/firestore";
 
-let adminStorage: Storage | null = null;
-
-if (!getApps().length) {
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY
-    ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
-    : undefined;
-
-  const hasValidPrivateKey =
-    Boolean(privateKey) &&
-    privateKey.includes("-----BEGIN PRIVATE KEY-----") &&
-    !privateKey.includes("Your-Private-Key-Here") &&
-    !privateKey.includes("your-private-key");
-
-  if (projectId && clientEmail && hasValidPrivateKey) {
-    try {
-      initializeApp({
-        credential: cert({
-          projectId,
-          clientEmail,
-          privateKey: privateKey!,
-        }),
-        storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "cyrilfinancial.appspot.com",
-      });
-
-      adminStorage = getStorage();
-    } catch (error) {
-      console.error("Firebase Admin initialization failed:", error);
-    }
-  } else {
-    console.warn("Firebase Admin environment variables are not configured or use placeholder credentials.");
-  }
+// Define the shape of the service account credentials for type safety.
+interface ServiceAccount {
+  projectId: string;
+  clientEmail: string;
+  privateKey: string;
 }
 
-export { adminStorage };
+// Retrieve service account credentials from environment variables with safe key processing.
+const serviceAccount: ServiceAccount = {
+  projectId: process.env.FIREBASE_PROJECT_ID!,
+  clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
+  privateKey: process.env.FIREBASE_PRIVATE_KEY
+    ? process.env.FIREBASE_PRIVATE_KEY.trim().replace(/^["'](.*)["']$/, '$1').replace(/\\n/g, '\n')
+    : '',
+};
+
+// Initialize the Firebase Admin SDK securely, preventing duplication errors.
+const app = !getApps().length
+  ? initializeApp({
+      credential: cert(serviceAccount),
+    })
+  : getApp();
+
+// Get the Firestore database instance and export it.
+const db: Firestore = getFirestore(app);
+
+export { db };

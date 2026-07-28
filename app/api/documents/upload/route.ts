@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 as uuidv4 } from 'uuid';
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET_KEY;
@@ -36,13 +38,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "File and application ID are required" }, { status: 400 });
     }
 
-    // رابط التخزين الوهمي أو المربوط بنظام الـ Storage الخاص بك
-    const secureStorageUrl = `https://storage.cyrilfinancial.com/vault/${session.userId}/${file.name}`;
+    // إنشاء مسار تخزين فريد وآمن للملف
+    const fileExtension = file.name.split('.').pop();
+    const uniqueFileName = `${uuidv4()}.${fileExtension}`;
+    const storagePath = `user_documents/${session.userId}/${applicationId}/${uniqueFileName}`;
+    const storageRef = ref(storage, storagePath);
+
+    // رفع الملف إلى Firebase Storage
+    const fileBuffer = await file.arrayBuffer();
+    await uploadBytes(storageRef, fileBuffer);
+    const secureStorageUrl = await getDownloadURL(storageRef);
 
     const docRef = await addDoc(collection(db, "documents"), {
       applicationId,
       userId: session.userId,
-      fileName: file.name,
+      fileName: file.name, // الاحتفاظ بالاسم الأصلي للعرض
       fileUrl: secureStorageUrl,
       documentType,
       fileSize: file.size,
