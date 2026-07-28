@@ -3,37 +3,39 @@ import Link from "next/link";
 import { Header } from "@/components/layout/header";
 // استيراد مساعد الذكاء الاصطناعي للرد على العملاء
 import { AiSupportChat } from "@/components/widgets/ai-support-chat";
+// استيراد أيقونات احترافية تعبر عن كل كارت بدقة
+import { Building2, Calculator, RefreshCw, Home, Layers } from "lucide-react";
 
 const loanPrograms = [
   {
-    title: "Home Purchase",
-    description: "Conventional rates for first-time and seasoned buyers.",
-    icon: "🏠",
-    href: "/loans/purchase",
+    title: "About Us",
+    description: "Discover our elite standards, executive leadership, and boutique mortgage advisory.",
+    icon: <Building2 className="w-6 h-6 text-white drop-shadow-sm" />,
+    href: "/about",
+  },
+  {
+    title: "Mortgage Calculator",
+    description: "Calculate your monthly payments, interest rates, and loan amortization instantly.",
+    icon: <Calculator className="w-6 h-6 text-white drop-shadow-sm" />,
+    href: "/calculators/mortgage-calculator",
   },
   {
     title: "Refinance",
-    description: "Lower monthly payments or cash-out options.",
-    icon: "🔄",
+    description: "Lower your monthly payments or access custom cash-out equity options.",
+    icon: <RefreshCw className="w-6 h-6 text-white drop-shadow-sm" />,
     href: "/loans/refinance",
   },
   {
-    title: "Jumbo Loans",
-    description: "High-value property financing for high-net-worth borrowers.",
-    icon: "💎",
-    href: "/loans/jumbo",
+    title: "Purchase",
+    description: "Conventional rates tailored for first-time and seasoned property buyers.",
+    icon: <Home className="w-6 h-6 text-white drop-shadow-sm" />,
+    href: "/loans/purchase",
   },
   {
-    title: "FHA, VA & More",
-    description: "Government-backed zero or low down payment programs.",
-    icon: "🛡️",
-    href: "/loans/fha-va",
-  },
-  {
-    title: "Non-QM Loans",
-    description: "Flexible bank statement solutions for self-employed investors.",
-    icon: "📊",
-    href: "/loans/non-qm",
+    title: "Loan Programs",
+    description: "Explore comprehensive financing solutions including Jumbo, FHA, VA & Non-QM.",
+    icon: <Layers className="w-6 h-6 text-white drop-shadow-sm" />,
+    href: "/loans/programs",
   },
 ];
 
@@ -49,17 +51,17 @@ export default function HomePage() {
           {/* Header Title Section */}
           <div className="text-center space-y-4 max-w-3xl mx-auto">
             <div className="inline-block px-5 py-1.5 bg-silver-button border border-gray-300 text-navy rounded-full text-xs font-bold uppercase tracking-widest shadow-sm">
-              Tailored Financing
+              Tailored Financing & Advisory
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-navy tracking-tight">
-              Comprehensive Loan Programs
+              Comprehensive Financial Solutions
             </h1>
             <p className="text-gray-500 text-sm md:text-base leading-relaxed">
-              Comprehensive Loan Programs and high-net-worth borrowing, tailored every aspect mortgaged to your goals.
+              Institutional private banking standards and high-net-worth borrowing, tailored every aspect to your goals.
             </p>
           </div>
 
-          {/* Loan Programs Grid (Matching Attached Layout) */}
+          {/* Loan Programs Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {loanPrograms.map((program, idx) => (
               <div
@@ -67,8 +69,8 @@ export default function HomePage() {
                 className="bg-white p-8 rounded-3xl border border-gray-100 shadow-card-soft hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
               >
                 <div className="space-y-6">
-                  {/* Embossed Metallic Icon Container */}
-                  <div className="w-14 h-14 bg-silver-gradient border border-white rounded-2xl flex items-center justify-center text-xl shadow-icon-emboss">
+                  {/* حاوية الأيقونة ذات التدرج المعدني اللامع المطلوب */}
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-[#C5C6C8] via-[#88898D] to-[#919296] shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),0_4px_8px_rgba(0,0,0,0.12)] border border-slate-300/80 flex items-center justify-center">
                     {program.icon}
                   </div>
                   
@@ -85,7 +87,7 @@ export default function HomePage() {
                 <div className="pt-6 mt-6 border-t border-gray-50">
                   <Link
                     href={program.href}
-                    className="text-xs font-bold text-navy hover:text-navy-light transition-colors flex items-center gap-1.5"
+                    className="text-xs font-bold text-navy hover:text-blue-600 transition-colors flex items-center gap-1.5"
                   >
                     Explore {program.title.split(" ")[0]} →
                   </Link>
@@ -96,6 +98,7 @@ export default function HomePage() {
 
         </div>
       </section>
+
       {/* AI Customer Support Chatbot Widget */}
       <AiSupportChat />
     </div>

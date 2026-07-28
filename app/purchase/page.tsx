@@ -121,12 +121,10 @@ export default function PurchasePage() {
                   </div>
                 </div>
               </div>
-
             </div>
-
             {/* Sidebar: Affordability Calculator & Quick Application */}
             <div className="lg:col-span-5 space-y-6">
-              
+             
               {/* Home Affordability Calculator */}
               <div className="bg-white p-8 rounded-3xl shadow-luxury border border-gray-100 space-y-5">
                 <div>
@@ -134,7 +132,6 @@ export default function PurchasePage() {
                   <h3 className="text-xl font-bold text-navy mt-1">How Much Home Can You Afford?</h3>
                   <p className="text-gray-500 text-xs mt-1">Estimate your maximum purchasing power based on gross income.</p>
                 </div>
-
                 <div className="space-y-4 pt-2">
                   <div>
                     <label className="block text-xs font-bold text-navy mb-1">Gross Monthly Income ($)</label>
@@ -145,7 +142,6 @@ export default function PurchasePage() {
                       className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-navy outline-none" 
                     />
                   </div>
-
                   <div>
                     <label className="block text-xs font-bold text-navy mb-1">Monthly Existing Debts ($)</label>
                     <input 
@@ -156,7 +152,6 @@ export default function PurchasePage() {
                       className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-navy outline-none" 
                     />
                   </div>
-
                   <div>
                     <label className="block text-xs font-bold text-navy mb-1">Saved Down Payment ($)</label>
                     <input 
@@ -166,7 +161,6 @@ export default function PurchasePage() {
                       className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-navy outline-none" 
                     />
                   </div>
-
                   <div className="bg-navy text-white p-5 rounded-2xl flex items-center justify-between">
                     <div>
                       <span className="text-[10px] text-gray-300 uppercase tracking-wider block">Estimated Home Budget</span>
@@ -178,7 +172,6 @@ export default function PurchasePage() {
                   </div>
                 </div>
               </div>
-
               {/* Form 1003 Purchase Hub */}
               <div className="bg-white p-8 rounded-3xl shadow-luxury border border-gray-100 space-y-4">
                 <div>
@@ -188,18 +181,14 @@ export default function PurchasePage() {
                     Ready to make an offer? Submit Form 1003 to receive your official Pre-Approval letter.
                   </p>
                 </div>
-
                 <Link href="/apply/form-1003" className="block">
                   <Button className="w-full bg-navy hover:bg-navy-light text-white font-semibold py-3.5 rounded-xl shadow-md flex items-center justify-center gap-2 text-xs">
                     <FileSpreadsheet className="w-4 h-4" /> Open Form 1003 Application <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
               </div>
-
             </div>
-
           </div>
-
         </div>
       </main>
     </div>

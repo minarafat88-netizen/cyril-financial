@@ -45,6 +45,8 @@ export function Footer() {
             <li><Link href="/rates" className="hover:text-white transition">Live Market Rates</Link></li>
             <li><Link href="/portal" className="hover:text-white transition">Secure Client Vault</Link></li>
             <li><Link href="/apply" className="hover:text-white transition">Pre-Approval Funnel</Link></li>
+            {/* إضافة رابط صفحة الاتصال هنا */}
+            <li><Link href="/contact" className="hover:text-white transition">Contact Us</Link></li>
           </ul>
         </div>
 

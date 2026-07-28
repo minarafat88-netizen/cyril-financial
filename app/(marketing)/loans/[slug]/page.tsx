@@ -33,8 +33,15 @@ const loanData: Record<string, any> = {
   }
 };
 
-export default function LoanProgramPage({ params }: { params: { slug: string } }) {
-  const data = loanData[params.slug];
+// 1. تحويل المكون إلى async وجعل الـ params من نوع Promise
+export default async function LoanProgramPage({ 
+  params 
+}: { 
+  params: Promise<{ slug: string }> 
+}) {
+  // 2. فك الـ Promise لاستخراج الـ slug
+  const resolvedParams = await params;
+  const data = loanData[resolvedParams.slug];
 
   if (!data) {
     notFound(); // توجيه لصفحة 404 إذا كان الرابط غير صحيح

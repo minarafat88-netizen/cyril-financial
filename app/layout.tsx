@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/layout/footer";
+import { FloatingContact } from "@/components/widgets/floating-contact";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,7 +54,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/images/hero-luxury-estate.png",
+        url: "/images/home1.png",
         width: 1200,
         height: 700,
         alt: "Cyril Financial Group luxury California mortgage lending",
@@ -78,7 +79,12 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${montserrat.variable}`}>
       <body className="font-sans bg-gray-50 text-slate antialiased selection:bg-emerald selection:text-white">
         {children}
+        
+        {/* الفوتر الأساسي للموقع */}
         <Footer />
+        
+        {/* الودجت العائم للاتصال السريع */}
+        <FloatingContact />
       </body>
     </html>
   );
