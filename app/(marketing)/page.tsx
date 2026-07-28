@@ -35,7 +35,7 @@ const loanPrograms = [
     title: "Loan Programs",
     description: "Explore comprehensive financing solutions including Jumbo, FHA, VA & Non-QM.",
     icon: <Layers className="w-6 h-6 text-white drop-shadow-sm" />,
-    href: "/loans/programs",
+    href: "/loans",
   },
 ];
 
