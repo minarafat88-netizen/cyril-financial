@@ -1,26 +1,50 @@
-import { MetadataRoute } from "next";
+import { MetadataRoute } from 'next';
+import { db } from '@/lib/firebase-admin';
+
+// Define interface for the loan data we need
+interface LoanProgram {
+  slug: string;
+  // You can add a field for last modification date if it exists in the database
+  // lastModified?: admin.firestore.Timestamp;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://cyrilfinancial.com";
+  const baseUrl = 'https://cyrilfinancial.com'; // يجب أن يكون هذا هو النطاق الأساسي لموقعك
 
+  // 1. جلب الروابط الديناميكية (برامج القروض) من Firestore
+  const programsRef = db.collection('loanPrograms'); // 1. Fetch dynamic links (loan programs) from Firestore
+  const snapshot = await programsRef.get();
+  const loanProgramsUrls = snapshot.docs.map((doc) => {
+    const data = doc.data() as LoanProgram;
+    return {
+      url: `${baseUrl}/loans/${data.slug}`,
+      lastModified: new Date(), // You can use the last modification date from the database if available
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    };
+  });
+
+  // 2. Define static links on the website
   const staticRoutes = [
-    { route: "", priority: 1.0, changeFrequency: "daily" as const },
-    { route: "/about", priority: 0.9, changeFrequency: "weekly" as const },
-    { route: "/contact", priority: 0.9, changeFrequency: "weekly" as const },
-    { route: "/rates", priority: 0.9, changeFrequency: "daily" as const },
-    { route: "/calculators", priority: 0.9, changeFrequency: "weekly" as const },
-    { route: "/calculators/mortgage-calculator", priority: 0.9, changeFrequency: "weekly" as const },
-    { route: "/loans", priority: 0.8, changeFrequency: "weekly" as const },
-    { route: "/loans/jumbo", priority: 0.8, changeFrequency: "weekly" as const },
-    { route: "/loans/bank-statement", priority: 0.8, changeFrequency: "weekly" as const },
-    { route: "/loans/dscr", priority: 0.8, changeFrequency: "weekly" as const },
-    { route: "/apply", priority: 0.8, changeFrequency: "weekly" as const },
-  ].map(({ route, priority, changeFrequency }) => ({
+    '/',
+    '/about',
+    '/loans',
+    '/purchase',
+    '/refinance',
+    '/resources',
+    '/contact',
+    '/apply',
+    '/login',
+  ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
-    changeFrequency,
-    priority,
+    changeFrequency: 'monthly' as const,
+    priority: route === '/' ? 1.0 : 0.7,
   }));
 
-  return staticRoutes;
+  // 3. Merge all links and return them
+  return [
+    ...staticRoutes,
+    ...loanProgramsUrls,
+  ];
 }

@@ -5,13 +5,13 @@ import { db } from "@/lib/firebase-admin";
 
 export async function GET() {
   try {
-    // يمكنك جلب البيانات من قاعدة البيانات أو إرجاع معلومات افتراضية للـ AI
+    // You can fetch data from the database or return default AI information
     let knowledgeData = [];
     
     try {
       const snapshot = await db.collection("ai_knowledge").get();
       knowledgeData = snapshot.docs.map(doc => ({
-        id: doc.id,
+        id: doc.id, // eslint-disable-line
         ...doc.data()
       }));
     } catch (dbError) {

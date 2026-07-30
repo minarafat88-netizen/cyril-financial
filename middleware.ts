@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  // إنشاء سياسة أمان المحتوى (CSP)
+// Function to set security headers on a response
+function setSecurityHeaders(response: NextResponse) {
   const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline';
@@ -12,69 +12,16 @@ export async function middleware(request: NextRequest) {
     base-uri 'self';
     form-action 'self';
     frame-ancestors 'none';
-  `.replace(/\s{2,}/g, ' ').trim(); // إزالة المسافات الزائدة
+  `.replace(/\s{2,}/g, ' ').trim();
 
-  // إضافة ترويسات الأمان الأساسية
-  const headers = new Headers(request.headers);
-  headers.set('X-Content-Type-Options', 'nosniff');
-  headers.set('X-Frame-Options', 'DENY');
-  headers.set('X-XSS-Protection', '1; mode=block');
-  headers.set('Content-Security-Policy', cspHeader);
-
-  let response = NextResponse.next({
-    request: {
-      // تمرير الترويسات الجديدة إلى الطلبات اللاحقة
-      headers: headers,
-    },
-  });
-
-  // تطبيق نفس الترويسات على الاستجابة النهائية
+  response.headers.set('Content-Security-Policy', cspHeader);
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Content-Security-Policy', cspHeader);
+  return response;
+}
 
-  // Maintaining full cookie management helper matching your original architecture structure
-  const cookieMethods = {
-    get(name: string) {
-      return request.cookies.get(name)?.value;
-    },
-    set(name: string, value: string, options: any) {
-      request.cookies.set({
-        name,
-        value,
-        ...options,
-      });
-      response = NextResponse.next({
-        request: {
-          headers: request.headers,
-        },
-      });
-      response.cookies.set({
-        name,
-        value,
-        ...options,
-      });
-    },
-    remove(name: string, options: any) {
-      request.cookies.set({
-        name,
-        value: '',
-        ...options,
-      });
-      response = NextResponse.next({
-        request: {
-          headers: request.headers,
-        },
-      });
-      response.cookies.set({
-        name,
-        value: '',
-        ...options,
-      });
-    },
-  };
-
+export async function middleware(request: NextRequest) {
   // Check for Firebase session cookie or token managed by your app client/server flow
   const sessionToken = request.cookies.get('firebase-auth-token')?.value || request.cookies.get('session')?.value;
 
@@ -84,9 +31,12 @@ export async function middleware(request: NextRequest) {
     // Redirect unauthenticated users to the login page preserving your exact error flow
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('error', 'Authentication required. Please log in.');
-    return NextResponse.redirect(loginUrl);
+    const redirectResponse = NextResponse.redirect(loginUrl);
+    return setSecurityHeaders(redirectResponse);
   }
 
+  // For all other requests, continue and apply security headers
+  const response = NextResponse.next();
   return response;
 }
 

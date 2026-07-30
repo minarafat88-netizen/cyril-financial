@@ -45,18 +45,24 @@ export default function HomePage() {
       <Header />
 
       {/* Main Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto space-y-12">
+      {/* Hero Section with background image */}
+      <section 
+        className="relative py-24 px-6 bg-navy text-white bg-cover bg-center" 
+        style={{ backgroundImage: "url('/images/hero-background.jpg')" }}
+      >
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-navy opacity-60"></div>
+        <div className="relative max-w-7xl mx-auto space-y-12 z-10"> {/* Ensure content is above overlay */}
           
           {/* Header Title Section */}
           <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <div className="inline-block px-5 py-1.5 bg-silver-button border border-gray-300 text-navy rounded-full text-xs font-bold uppercase tracking-widest shadow-sm">
+            <div className="inline-block px-5 py-1.5 bg-white/10 border border-white/20 text-blue-200 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-sm">
               Tailored Financing & Advisory
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-navy tracking-tight">
+            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
               Comprehensive Financial Solutions
             </h1>
-            <p className="text-gray-500 text-sm md:text-base leading-relaxed">
+            <p className="text-slate-300 text-sm md:text-base leading-relaxed">
               Institutional private banking standards and high-net-worth borrowing, tailored every aspect to your goals.
             </p>
           </div>

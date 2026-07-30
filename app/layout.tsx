@@ -79,11 +79,9 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${montserrat.variable}`}>
       <body className="font-sans bg-gray-50 text-slate antialiased selection:bg-emerald selection:text-white">
         {children}
-        
-        {/* الفوتر الأساسي للموقع */}
+        {/* Main site footer */}
         <Footer />
-        
-        {/* الودجت العائم للاتصال السريع */}
+        {/* Floating contact widget */}
         <FloatingContact />
       </body>
     </html>

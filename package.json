@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "test:e2e": "playwright test",
-    "db:seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/seed-loans.ts"
+    "db:seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/seed-loans.ts",
+    "grant-admin": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/grant-admin.ts",
+    "revoke-admin": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/revoke-admin.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

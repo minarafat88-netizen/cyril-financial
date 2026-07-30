@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Authentication secret is not configured" }, { status: 500 });
     }
 
-    // التحقق من الـ Cookie الخاصة بالتوكن للتأكد من تسجيل الدخول
+    // Check the session token cookie to ensure the user is logged in
     const cookieHeader = request.headers.get("cookie") || "";
     const tokenMatch = cookieHeader.match(/cyril_auth_token=([^;]+)/);
     
@@ -38,13 +38,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "File and application ID are required" }, { status: 400 });
     }
 
-    // إنشاء مسار تخزين فريد وآمن للملف
+    // Create a unique and secure storage path for the file
     const fileExtension = file.name.split('.').pop();
     const uniqueFileName = `${uuidv4()}.${fileExtension}`;
     const storagePath = `user_documents/${session.userId}/${applicationId}/${uniqueFileName}`;
     const storageRef = ref(storage, storagePath);
 
-    // رفع الملف إلى Firebase Storage
+    // Upload the file to Firebase Storage
     const fileBuffer = await file.arrayBuffer();
     await uploadBytes(storageRef, fileBuffer);
     const secureStorageUrl = await getDownloadURL(storageRef);
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     const docRef = await addDoc(collection(db, "documents"), {
       applicationId,
       userId: session.userId,
-      fileName: file.name, // الاحتفاظ بالاسم الأصلي للعرض
+      fileName: file.name, // Keep original name for display
       fileUrl: secureStorageUrl,
       documentType,
       fileSize: file.size,

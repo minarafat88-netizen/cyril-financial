@@ -10,7 +10,7 @@
 }
 
 @layer components {
-  /* يمكنك إضافة أي تنسيقات مخصصة هنا مستقبلاً */
+  /* You can add any custom styles here in the future */
   .shadow-card-soft {
     box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
   }
@@ -32,6 +32,6 @@ body {
   background-color: var(--background);
   color: var(--foreground);
 }
-html {
-  font-size: 17.5px; /* الحجم الافتراضي عادة 16px، رفعه إلى 17.5px أو 18px سيجعل كل خطوط الموقع أكبر وأوضح */
+html { /* Default size is usually 16px, increasing it to 17.5px or 18px will make all site fonts larger and clearer */
+  font-size: 17.5px;
 }

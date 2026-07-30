@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp, cert } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
+import { getStorage, type Storage } from "firebase-admin/storage";
 
 // Define the shape of the service account credentials for type safety.
 interface ServiceAccount {
@@ -21,10 +22,12 @@ const serviceAccount: ServiceAccount = {
 const app = !getApps().length
   ? initializeApp({
       credential: cert(serviceAccount),
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || `${serviceAccount.projectId}.appspot.com`,
     })
   : getApp();
 
-// Get the Firestore database instance and export it.
+// Get the Firestore database and Storage instances and export them.
 const db: Firestore = getFirestore(app);
+const storage: Storage = getStorage(app);
 
-export { db };
+export { db, storage };

@@ -1,10 +1,10 @@
-// هذا السكربت يستخدم لملء قاعدة البيانات بالبيانات الأولية لبرامج القروض
+// This script is used to seed the database with initial loan program data.
 // This script is used to seed the database with initial loan program data.
 import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" }); // تحميل المتغيرات من ملف .env.local
-import { db } from '../lib/firebase-admin'; // تأكد من أن المسار صحيح بعد نقل الملف
+dotenv.config({ path: ".env.local" }); // Load variables from .env.local
+import { db } from '../lib/firebase-admin'; // Ensure the path is correct after moving the file
 
-// تعريف واجهة لنوع بيانات القرض لضمان تناسق البيانات
+// Define an interface for the loan data type to ensure data consistency
 interface LoanProgramSeed {
   name: string;
   description: string;
@@ -13,7 +13,7 @@ interface LoanProgramSeed {
   order: number;
 }
 
-// تعريف البيانات التي سيتم إضافتها
+// Define the data to be added
 const loanPrograms: LoanProgramSeed[] = [
   {
     name: "Adjustable-Rate Mortgages (ARM)",
@@ -77,10 +77,10 @@ async function seedDatabase() {
   console.log("Starting to seed the 'loanPrograms' collection...");
   const programsCollection = db.collection('loanPrograms');
 
-  // استخدام Promise.all لتنفيذ جميع عمليات الكتابة بالتوازي لتحسين الأداء
+  // Use Promise.all to execute all write operations in parallel for better performance
   const seedPromises = loanPrograms.map(program => {
-    // استخدام slug كـ ID للمستند لضمان عدم التكرار
-    // The .then() here allows us to log success for each item individually
+    // Use slug as the document ID to ensure uniqueness
+    // The .then() here allows us to log success for each item individually.
     return programsCollection.doc(program.slug).set(program).then(() => {
       console.log(`✅ Successfully seeded: ${program.name}`);
     });

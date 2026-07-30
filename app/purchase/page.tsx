@@ -44,8 +44,8 @@ export default function PurchasePage() {
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/10 text-silver rounded-full text-xs font-semibold uppercase tracking-wider">
               <Key className="w-4 h-4 text-emerald-400" /> Home Purchase Financing
             </div>
-            <h1 className="text-4xl lg:text-5xl font-black text-white leading-tight">
-              Buy Your Dream Home with Confidence
+            <h1 className="text-4xl lg:text-5xl font-black text-white leading-tight"> {/* هذا هو الـ H1 الرئيسي للصفحة */}
+              Buy Your Dream Home with Confidence {/* This is the main H1 for the page */}
             </h1>
             <p className="text-gray-300 text-base lg:text-lg max-w-2xl leading-relaxed">
               Get verified Pre-Approval in minutes, make competitive offers, and secure the ideal mortgage rates tailored for your home purchase.
@@ -66,7 +66,7 @@ export default function PurchasePage() {
               
               {/* Process Section */}
               <div className="bg-white p-8 rounded-3xl shadow-luxury border border-gray-100 space-y-6">
-                <h2 className="text-2xl font-bold text-navy">The Home Buying Process</h2>
+                <h2 className="text-2xl font-bold text-navy">The Home Buying Process with Cyril Financial</h2> {/* H2 */}
                 <p className="text-gray-500 text-xs leading-relaxed">
                   Navigating your home purchase is simple when you have Cyril Financial backing your offer from pre-approval to closing.
                 </p>
@@ -75,8 +75,8 @@ export default function PurchasePage() {
                   {[
                     { step: "01", title: "Get Pre-Approved", desc: "Submit your basic financial profile via Form 1003 to receive an official Pre-Approval Letter." },
                     { step: "02", title: "Find Your Home", desc: "Shop with confidence knowing your exact purchasing power and budget boundaries." },
-                    { step: "03", title: "Lock Your Rate", desc: "Select your preferred mortgage program and lock in a competitive interest rate." },
-                    { step: "04", title: "Underwrite & Close", desc: "Our underwriting team finalizes your verification for a smooth on-time closing." }
+                    { step: "03", title: "Lock Your Mortgage Rate", desc: "Select your preferred mortgage program and lock in a competitive interest rate." },
+                    { step: "04", title: "Underwrite & Close Your Loan", desc: "Our underwriting team finalizes your verification for a smooth on-time closing." }
                   ].map((item, idx) => (
                     <div key={idx} className="flex gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 items-start">
                       <span className="text-lg font-black text-emerald-600 bg-emerald-100 px-3 py-1 rounded-xl shrink-0">
@@ -93,7 +93,7 @@ export default function PurchasePage() {
 
               {/* Best Purchase Programs */}
               <div className="bg-white p-8 rounded-3xl shadow-luxury border border-gray-100 space-y-6">
-                <h2 className="text-2xl font-bold text-navy">Top Purchase Mortgage Programs</h2>
+                <h2 className="text-2xl font-bold text-navy">Explore Our Top Purchase Mortgage Programs</h2> {/* H2 */}
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-5 bg-blue-50/50 rounded-2xl border border-blue-100 space-y-2">
@@ -129,7 +129,7 @@ export default function PurchasePage() {
               <div className="bg-white p-8 rounded-3xl shadow-luxury border border-gray-100 space-y-5">
                 <div>
                   <span className="text-xs font-semibold uppercase tracking-widest text-emerald-600">Purchase Power</span>
-                  <h3 className="text-xl font-bold text-navy mt-1">How Much Home Can You Afford?</h3>
+                  <h3 className="text-xl font-bold text-navy mt-1">Home Affordability Calculator</h3> {/* H3 */}
                   <p className="text-gray-500 text-xs mt-1">Estimate your maximum purchasing power based on gross income.</p>
                 </div>
                 <div className="space-y-4 pt-2">
@@ -175,7 +175,7 @@ export default function PurchasePage() {
               {/* Form 1003 Purchase Hub */}
               <div className="bg-white p-8 rounded-3xl shadow-luxury border border-gray-100 space-y-4">
                 <div>
-                  <span className="text-xs font-semibold uppercase tracking-widest text-blue-600">Official Pre-Approval</span>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-blue-600">Official Pre-Approval</span> {/* H3 */}
                   <h3 className="text-xl font-bold text-navy mt-1">Start Your Application</h3>
                   <p className="text-gray-500 text-xs mt-1">
                     Ready to make an offer? Submit Form 1003 to receive your official Pre-Approval letter.
