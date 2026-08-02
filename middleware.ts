@@ -22,8 +22,11 @@ function setSecurityHeaders(response: NextResponse) {
 }
 
 export async function middleware(request: NextRequest) {
-  // Check for Firebase session cookie or token managed by your app client/server flow
-  const sessionToken = request.cookies.get('firebase-auth-token')?.value || request.cookies.get('session')?.value;
+  // This now checks for the session cookie set by Auth.js (NextAuth.js)
+  // The cookie name might be `__Secure-authjs.session-token` or `authjs.session-token`
+  // depending on your environment (production/development).
+  // We check for both for robustness.
+  const sessionToken = request.cookies.get('__Secure-authjs.session-token')?.value || request.cookies.get('authjs.session-token')?.value;
 
   const isProtectedPath = request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/portal');
 

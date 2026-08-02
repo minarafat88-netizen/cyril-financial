@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, ShieldCheck, ExternalLink, Clock } from "lucide-react";
 
 interface ApplicationItem {
-  id: string;
+  id: number;
   firstName: string;
   lastName: string;
   email: string;

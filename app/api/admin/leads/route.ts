@@ -1,36 +1,25 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { verifyAuthToken } from "@/lib/auth";
-import { cookies } from "next/headers";
+import { db } from "@/lib/db";
+import { leads } from "@/lib/schema";
+import { desc } from "drizzle-orm";
+import { getCurrentUserSession } from "@/lib/auth";
 
 export async function GET(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("cyril_auth_token")?.value;
-    
-    if (!token) {
-      return NextResponse.json({ success: false, error: "Unauthorized access" }, { status: 401 });
+    const session = await getCurrentUserSession();
+    // Cast the user object to include the 'role' property to satisfy TypeScript
+    const user = session?.user as { role?: string | null };
+
+    if (user?.role !== "SUPER_ADMIN" && user?.role !== "LOAN_OFFICER") {
+      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
     }
 
-    const session = verifyAuthToken(token);
-    if (!session || (session.role !== "SUPER_ADMIN" && session.role !== "LOAN_OFFICER")) {
-      return NextResponse.json({ success: false, error: "Insufficient privileges" }, { status: 403 });
-    }
+    // جلب العملاء المحتملين (leads) من قاعدة البيانات وترتيبهم تنازلياً حسب تاريخ الإنشاء باستخدام Drizzle
+    const allLeads = await db.select().from(leads).orderBy(desc(leads.createdAt));
 
-    // جلب العملاء المحتملين (leads) من Firestore وترتيبهم تنازلياً حسب تاريخ الإنشاء
-    const leadsRef = collection(db, "leads");
-    const q = query(leadsRef, orderBy("createdAt", "desc"));
-    const querySnapshot = await getDocs(q);
-
-    const leads = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    return NextResponse.json({ success: true, count: leads.length, data: leads });
+    return NextResponse.json({ success: true, count: allLeads.length, data: allLeads });
   } catch (error) {
     console.error("Error fetching admin lead pipeline:", error);
     return NextResponse.json({ success: false, error: "Failed to fetch admin lead pipeline" }, { status: 500 });

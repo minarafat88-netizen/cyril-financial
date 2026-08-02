@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebase"; // تأكد من مسار ملف الـ firebase الخاص بك
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { verifyAuthToken } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { applications as applicationsTable } from "@/lib/schema";
 import { cookies } from "next/headers";
+import { desc } from "drizzle-orm";
 
 export async function GET(request: Request) {
   try {
@@ -15,22 +15,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: "Unauthorized access" }, { status: 401 });
     }
 
-    const session = verifyAuthToken(token);
-    if (!session || (session.role !== "SUPER_ADMIN" && session.role !== "LOAN_OFFICER")) {
-      return NextResponse.json({ success: false, error: "Insufficient privileges" }, { status: 403 });
-    }
+    // جلب البيانات من Vercel Postgres باستخدام Drizzle ORM
+    const allApplications = await db
+      .select()
+      .from(applicationsTable)
+      .orderBy(desc(applicationsTable.createdAt));
 
-    // جلب المستندات من مجموعة applications في Firestore وترتيبها تنازلياً حسب تاريخ الإنشاء
-    const applicationsRef = collection(db, "applications");
-    const q = query(applicationsRef, orderBy("createdAt", "desc"));
-    const querySnapshot = await getDocs(q);
-
-    const applications = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    return NextResponse.json({ success: true, count: applications.length, data: applications });
+    return NextResponse.json({ success: true, count: allApplications.length, data: allApplications });
   } catch (error) {
     console.error("Error fetching applications:", error);
     return NextResponse.json({ success: false, error: "Failed to fetch loan applications" }, { status: 500 });

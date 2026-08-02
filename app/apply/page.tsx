@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { SiteLogo } from "@/components/ui/site-logo";
+import Image from "next/image";
 
 export default function ApplyPage() {
   return (
@@ -11,9 +11,17 @@ export default function ApplyPage() {
         
         {/* Header / Logo */}
         <div className="flex flex-col items-center text-center space-y-4">
-          <Link href="/" className="flex items-center gap-2 group">
-            <SiteLogo className="w-10 h-10 rounded-xl border border-silver-dark/30" size={40} />
-            <span className="text-xl font-extrabold tracking-wider text-navy">CYRIL</span>
+          <Link href="/" className="flex items-center justify-center group">
+            {/* حاوية مربعة بحواف دائرية يملؤها logo5 بالكامل بدون نص CYRIL */}
+            <div className="w-14 h-14 rounded-2xl overflow-hidden border border-gray-200 shadow-sm flex items-center justify-center bg-white">
+              <Image 
+                src="/images/logo5.png"
+                alt="Cyril Financial Logo"
+                width={56}
+                height={56}
+                className="w-full h-full object-cover"
+              />
+            </div>
           </Link>
           <h2 className="text-2xl font-bold text-navy">Get Pre-Qualified in Minutes</h2>
           <p className="text-sm text-gray-500">

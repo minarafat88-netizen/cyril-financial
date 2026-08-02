@@ -1,31 +1,46 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebase";
-import { doc, updateDoc } from "firebase/firestore"; // تم التصحيح هنا
+import Stripe from "stripe";
+import { db } from "@/lib/db";
+import { applications as applicationsTable } from "@/lib/schema";
+import { eq } from "drizzle-orm";
+
+// تهيئة Stripe باستخدام المفتاح السري
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2026-07-29.dahlia",
+});
+
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(request: Request) {
   try {
     const body = await request.text();
-    const signature = request.headers.get("stripe-signature");
+    const signature = request.headers.get("stripe-signature")!;
 
-    const event = JSON.parse(body);
+    // التحقق من صحة الـ Webhook باستخدام مكتبة Stripe الرسمية
+    const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
 
     switch (event.type) {
       case "payment_intent.succeeded":
         const paymentIntent = event.data.object;
-        const applicationId = paymentIntent.metadata?.applicationId;
+        const applicationId = paymentIntent.metadata.applicationId;
 
-        if (applicationId) {
-          try {
-            // تحديث حالة الطلب في Firebase Firestore
-            const appRef = doc(db, "applications", applicationId);
-            await updateDoc(appRef, {
-              status: "FEE_PAID_UNDERWRITING",
-              updatedAt: new Date().toISOString(),
-            });
-          } catch (err) {
-            console.error("Error updating application status from webhook:", err);
-          }
+        if (!applicationId) {
+          console.warn("Webhook received payment_intent.succeeded without an applicationId in metadata.");
+          break;
         }
+
+        // تحديث حالة الطلب في قاعدة البيانات باستخدام Drizzle
+        await db
+          .update(applicationsTable)
+          .set({
+            // Use a typed cast to bypass strict generated types when necessary
+            // Ensure the fields exist in your schema. Adjust keys if different.
+            status: "FEE_PAID_UNDERWRITING",
+            updatedAt: new Date(),
+          } as any)
+          .where(eq(applicationsTable.id, Number(applicationId)));
+
+        console.log(`Webhook: Successfully updated application ID ${applicationId} to FEE_PAID_UNDERWRITING.`);
         break;
 
       default:
@@ -34,6 +49,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true });
   } catch (error: any) {
+    console.error("Webhook processing failed:", error.message);
     return NextResponse.json(
       { success: false, error: error.message || "Webhook processing failed" },
       { status: 400 }

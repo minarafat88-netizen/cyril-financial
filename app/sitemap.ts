@@ -1,28 +1,25 @@
 import { MetadataRoute } from 'next';
-import { db } from '@/lib/firebase-admin';
-
-// Define interface for the loan data we need
-interface LoanProgram {
-  slug: string;
-  // You can add a field for last modification date if it exists in the database
-  // lastModified?: admin.firestore.Timestamp;
-}
+import { db } from '@/lib/db';
+import { loanPrograms } from '@/lib/schema';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://cyrilfinancial.com'; // يجب أن يكون هذا هو النطاق الأساسي لموقعك
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://cyrilfinancial.com';
 
-  // 1. جلب الروابط الديناميكية (برامج القروض) من Firestore
-  const programsRef = db.collection('loanPrograms'); // 1. Fetch dynamic links (loan programs) from Firestore
-  const snapshot = await programsRef.get();
-  const loanProgramsUrls = snapshot.docs.map((doc) => {
-    const data = doc.data() as LoanProgram;
-    return {
-      url: `${baseUrl}/loans/${data.slug}`,
-      lastModified: new Date(), // You can use the last modification date from the database if available
+  // 1. Fetch dynamic links (loan programs) from Vercel Postgres
+  let loanProgramsUrls: MetadataRoute.Sitemap = [];
+  try {
+    const programs = await db
+      .select({ slug: loanPrograms.slug })
+      .from(loanPrograms);
+    loanProgramsUrls = programs.map((program) => ({
+      url: `${baseUrl}/loans/${program.slug}`,
+      lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
-    };
-  });
+    }));
+  } catch (error) {
+    console.error('Failed to fetch loan programs for sitemap:', error);
+  }
 
   // 2. Define static links on the website
   const staticRoutes = [

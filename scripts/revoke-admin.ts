@@ -1,54 +1,42 @@
 // This script is used to revoke the SUPER_ADMIN role from a specific user in Firebase Authentication.
-// This script is used to revoke the SUPER_ADMIN role from a specific user in Firebase Authentication.
+// This script is used to revoke the SUPER_ADMIN role from a specific user in the Drizzle ORM 'users' table.
 
 import dotenv from "dotenv";
-import admin from 'firebase-admin'; // Import Firebase Admin SDK
-
 // Load environment variables from .env.local
 dotenv.config({ path: ".env.local" });
 
-// تعريف واجهة لبيانات حساب الخدمة لضمان أمان الأنواع
-interface ServiceAccount {
-  projectId: string;
-  clientEmail: string;
-  privateKey: string;
-}
+import { db } from "../lib/db"; // عميل Drizzle ORM الخاص بك
+import { users } from "../lib/schema"; // مخطط جدول المستخدمين
+import { eq } from "drizzle-orm";
 
-// Fetch service account credentials from environment variables with secure private key processing.
-const serviceAccount: ServiceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID!,
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY
-    ? process.env.FIREBASE_PRIVATE_KEY.trim().replace(/^["'](.*)["']$/, '$1').replace(/\\n/g, '\n')
-    : '',
-};
-
-// Initialize Firebase Admin SDK securely, preventing duplication errors.
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
-
-async function revokeAdminRole(uid: string) {
-  if (!uid) {
-    console.error("Error: User UID is required. Usage: npm run revoke-admin <user-uid>");
+async function revokeAdminRole(userId: string) {
+  if (!userId) {
+    console.error("Error: User ID is required. Usage: npm run revoke-admin <user-id>");
     process.exit(1);
   }
 
   try {
-    // Remove custom claims from the user by setting them to an empty object
-    await admin.auth().setCustomUserClaims(uid, {});
-    const user = await admin.auth().getUser(uid);
-    console.log(`✅ Successfully revoked admin role from user: ${user.email || user.uid}`);
-    await admin.auth().revokeRefreshTokens(uid); // Force user to re-authenticate to update claims
-    console.log("User's refresh tokens revoked. User will need to re-authenticate for changes to take effect.");
+    // Find the user by ID
+    const userToUpdate = await db.select().from(users).where(eq(users.id, parseInt(userId, 10))).limit(1);
+
+    if (userToUpdate.length === 0) {
+      console.error(`❌ Error: User with ID ${userId} not found.`);
+      process.exit(1);
+    }
+
+    // Update the user's role to 'user' (or any default non-admin role)
+    await db.update(users)
+      .set({ role: 'user' } as any) // Set to a default non-admin role
+      .where(eq(users.id, parseInt(userId, 10)));
+
+    console.log(`✅ Successfully revoked admin role from user: ${userToUpdate[0].email || userToUpdate[0].id}`);
+    console.log("Note: User will need to log out and log back in for changes to take effect.");
     process.exit(0);
   } catch (error) {
-    console.error(`❌ Error revoking admin role from user ${uid}:`, error);
+    console.error(`❌ Error revoking admin role from user ${userId}:`, error);
     process.exit(1);
   }
 }
-// Get user UID from command line arguments
-const userUid = process.argv[2];
-revokeAdminRole(userUid);
+// Get user ID from command line arguments
+const userId = process.argv[2];
+revokeAdminRole(userId);

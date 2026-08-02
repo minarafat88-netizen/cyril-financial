@@ -65,9 +65,9 @@ export function AiSupportChat() {
             <Image
               src="/images/logo4.png"
               alt="AI Assistant Logo"
-              width={32}
-              height={32}
-              className="w-full h-full object-contain"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" style={{ objectFit: 'contain' }}
+              className="object-contain"
             />
           </div>
           <span className="text-xs font-bold tracking-wider uppercase pr-2">Ask AI Advisor</span>
@@ -83,9 +83,8 @@ export function AiSupportChat() {
                 <Image
                   src="/images/logo4.png"
                   alt="AI Assistant Logo"
-                  width={32}
-                  height={32}
-                  className="w-full h-full object-contain"
+                  fill
+                  className="object-contain"
                 />
               </div>
               <div>

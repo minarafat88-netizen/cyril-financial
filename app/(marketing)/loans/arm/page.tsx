@@ -1,266 +1,286 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import React, { useState } from "react";
 import Link from "next/link";
-import { format } from 'date-fns';
+import ReCAPTCHA from "react-google-recaptcha";
+import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ArrowLeft, User, Mail, Phone, MessageSquare, Tag, Calendar, Edit, CheckCircle, RefreshCw, Save, X } from "lucide-react";
+import { 
+  ShieldCheck, 
+  ArrowRight, 
+  CheckCircle2, 
+  Calculator, 
+  Send, 
+  FileSpreadsheet, 
+  TrendingUp, 
+  ShieldAlert, 
+  Info 
+} from "lucide-react";
 
-type LeadStatus = 'New' | 'Contacted' | 'In Progress' | 'Qualified' | 'Unqualified' | 'Closed';
-const leadStatuses: LeadStatus[] = ['New', 'Contacted', 'In Progress', 'Qualified', 'Unqualified', 'Closed'];
-
-interface Lead {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  interest: string;
-  message?: string;
-  status: LeadStatus;
-  createdAt: any;
-}
-
-const EditLeadModal = ({ lead, onSave, onCancel }: { lead: Lead, onSave: (updatedData: Partial<Lead>) => Promise<void>, onCancel: () => void }) => {
-  const [formData, setFormData] = useState({
-    firstName: lead.firstName,
-    lastName: lead.lastName,
-    email: lead.email,
-    phone: lead.phone || '',
-  });
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+export default function AdjustableRateLoanPage() {
+  // حالات الحاسبة المخصصة لقرض Adjustable-Rate Mortgage (ARM)
+  const [loanAmount, setLoanAmount] = useState<number>(400000);
+  const [loanTermYears, setLoanTermYears] = useState<number>(30);
+  const [armStructure, setArmStructure] = useState<string>("5/1");
+  
+  // نسب الفائدة الابتدائية لبرامج ARM المختلفة (أقل عادة من Fixed-Rate)
+  const getInitialRate = () => {
+    switch(armStructure) {
+      case "5/1": return 5.375;
+      case "7/1": return 5.625;
+      case "10/1": return 5.875;
+      default: return 5.375;
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const initialInterestRate = getInitialRate();
+
+  // حالة reCAPTCHA
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaError, setCaptchaError] = useState<boolean>(false);
+
+  // حساب القسط الشهري الأولي للفائدة الثابتة
+  const calculateInitialMonthlyPayment = () => {
+    const monthlyRate = initialInterestRate / 100 / 12;
+    const totalPayments = loanTermYears * 12;
+    if (monthlyRate === 0) return loanAmount / totalPayments;
+    const payment =
+      (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) /
+      (Math.pow(1 + monthlyRate, totalPayments) - 1);
+    return Math.round(payment);
+  };
+
+  const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaving(true);
-    await onSave(formData);
-    setIsSaving(false);
+    if (!captchaToken) {
+      setCaptchaError(true);
+      return;
+    }
+    setCaptchaError(false);
+    alert("Contact details submitted successfully! An ARM loan specialist will contact you shortly.");
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-xl w-full max-w-lg">
-        <form onSubmit={handleSubmit}>
-          <div className="p-8 border-b border-gray-100">
-            <h2 className="text-xl font-bold text-navy">Edit Client Information</h2>
-            <p className="text-sm text-gray-500">Update the core details for this lead.</p>
+    <div className="min-h-screen bg-gray-50 font-sans text-navy flex flex-col">
+      <Header />
+
+      <main className="flex-1 py-16 px-6">
+        <div className="max-w-5xl mx-auto space-y-12">
+          
+          {/* Header Banner */}
+          <div className="bg-navy text-white p-10 lg:p-14 rounded-3xl shadow-glass space-y-6">
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white/10 text-silver rounded-full text-xs font-semibold uppercase tracking-wider">
+              <TrendingUp className="w-4 h-4 text-emerald-400" /> Dynamic Rate Program
+            </div>
+            <h1 className="text-4xl lg:text-5xl font-extrabold text-white">
+              Adjustable-Rate Mortgages (ARM)
+            </h1>
+            <p className="text-gray-300 text-lg leading-relaxed max-w-2xl">
+              Enjoy lower initial monthly payments for the first 5, 7, or 10 years, starting as low as {initialInterestRate}%, followed by periodic interest rate adjustments aligned with market indexes.
+            </p>
           </div>
-          <div className="p-8 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-bold text-gray-500">First Name</label>
-                <Input name="firstName" value={formData.firstName} onChange={handleChange} required />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            
+            {/* Overview, In-depth Details & Requirements */}
+            <div className="lg:col-span-7 bg-white p-8 lg:p-10 rounded-3xl shadow-luxury border border-gray-100 space-y-8">
+              
+              <div className="space-y-4">
+                <h3 className="text-2xl font-bold text-navy">Program Overview & Detailed Structure</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  An Adjustable-Rate Mortgage (ARM) offers a fixed interest rate for an initial introductory period (such as 5, 7, or 10 years). After this initial period expires, the interest rate resets periodically (typically once per year or every 6 months) based on a benchmark market index (e.g., SOFR) plus a predetermined margin set by the lender.
+                </p>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  ARMs are highly ideal for homebuyers who plan to move, refinance, or pay off their mortgage before the initial fixed-rate term ends, allowing them to capitalize on significantly lower starting interest rates compared to traditional fixed-rate loans.
+                </p>
               </div>
-              <div>
-                <label className="text-xs font-bold text-gray-500">Last Name</label>
-                <Input name="lastName" value={formData.lastName} onChange={handleChange} required />
-              </div>
-            </div>
-            <div>
-              <label className="text-xs font-bold text-gray-500">Email Address</label>
-              <Input name="email" type="email" value={formData.email} onChange={handleChange} required />
-            </div>
-            <div>
-              <label className="text-xs font-bold text-gray-500">Phone Number</label>
-              <Input name="phone" type="tel" value={formData.phone} onChange={handleChange} />
-            </div>
-          </div>
-          <div className="p-6 bg-gray-50 rounded-b-3xl flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={onCancel}><X className="w-4 h-4 mr-2" /> Cancel</Button>
-            <Button type="submit" disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700"><Save className="w-4 h-4 mr-2" /> {isSaving ? 'Saving...' : 'Save Changes'}</Button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
 
-export default function LeadDetailsPage() {
-  const params = useParams();
-  const router = useRouter();
-  const id = params.id as string;
-  const [lead, setLead] = useState<Lead | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
-  const [statusUpdateMessage, setStatusUpdateMessage] = useState<string | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (!id) return;
-
-    const fetchLeadDetails = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`/api/admin/leads/${id}`);
-        const data = await response.json();
-
-        if (data.success) {
-          setLead(data.data);
-        } else {
-          setError(data.error || "Failed to fetch lead details.");
-        }
-      } catch (err) {
-        setError("An unexpected error occurred.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLeadDetails();
-  }, [id]);
-
-  const handleStatusChange = async (newStatus: LeadStatus) => {
-    if (!lead || newStatus === lead.status) return;
-
-    setIsUpdatingStatus(true);
-    setStatusUpdateMessage(null);
-
-    try {
-      await handleUpdate({ status: newStatus });
-      setStatusUpdateMessage("Status updated!");
-      setTimeout(() => setStatusUpdateMessage(null), 2000);
-    } catch (err: any) {
-      // يتم عرض الخطأ من خلال handleUpdate
-      // يمكن إضافة منطق إضافي هنا إذا لزم الأمر
-    }
-
-    setIsUpdatingStatus(false);
-  };
-
-  const handleUpdate = async (updatedData: Partial<Lead>) => {
-    if (!lead) return;
-
-    try {
-      const response = await fetch(`/api/admin/leads/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedData),
-      });
-      const result = await response.json();
-      if (!result.success) throw new Error(result.error || "Failed to update.");
-      
-      // تحديث الحالة المحلية بنجاح
-      setLead(prev => prev ? { ...prev, ...updatedData } : null);
-      setIsEditModalOpen(false);
-
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
-      throw err; // إعادة إرسال الخطأ ليتم التعامل معه في الدالة المستدعية
-    }
-  };
-
-  if (loading) {
-    return <div className="p-8 text-center">Loading lead details...</div>;
-  }
-
-  if (error) {
-    return <div className="p-8 text-center text-red-500">{error}</div>;
-  }
-
-  if (!lead) {
-    return <div className="p-8 text-center">Lead not found.</div>;
-  }
-
-  const leadDetails = [
-    { icon: User, label: "Full Name", value: `${lead.firstName} ${lead.lastName}` },
-    { icon: Mail, label: "Email Address", value: lead.email },
-    { icon: Phone, label: "Phone Number", value: lead.phone || "Not provided" },
-    { icon: Tag, label: "Area of Interest", value: lead.interest },
-    { icon: Calendar, label: "Submission Date", value: lead.createdAt?.toDate ? format(lead.createdAt.toDate(), 'MMMM dd, yyyy @ hh:mm a') : 'N/A' },
-  ];
-
-  return (
-    <div className="p-8 space-y-8 bg-surface min-h-screen font-sans text-navy">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/leads">
-            <Button variant="outline" size="icon" className="border-gray-200">
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-black tracking-tight">Lead Details</h1>
-            <p className="text-sm text-gray-500 mt-1">Viewing inquiry from {lead.firstName} {lead.lastName}</p>
-          </div>
-        </div>
-        <Button onClick={() => setIsEditModalOpen(true)} className="bg-navy text-white"><Edit className="w-4 h-4 mr-2" /> Edit Lead</Button>
-      </div>
-
-      {/* Details Grid */}
-      {isEditModalOpen && (
-        <EditLeadModal lead={lead} onSave={handleUpdate} onCancel={() => setIsEditModalOpen(false)} />
-      )}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Main Details */}
-        <div className="lg:col-span-2 bg-white rounded-3xl shadow-card-soft border border-gray-100 p-8 space-y-6">
-          <h2 className="text-lg font-bold text-navy border-b border-gray-100 pb-4">Client Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-            {leadDetails.map((item, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <div className="p-2 bg-gray-50 rounded-lg text-gray-500 mt-1">
-                  <item.icon className="w-4 h-4" />
+              {/* In-Depth Anatomy of ARM Loans */}
+              <div className="space-y-4 pt-4 border-t border-gray-100">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Understanding ARM Rate Caps & Limits</h4>
+                <div className="bg-blue-50/60 p-5 rounded-2xl border border-blue-100 space-y-3 text-xs text-gray-700">
+                  <div className="flex items-start gap-2.5">
+                    <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-navy block">Built-in Cap Protection (e.g., 2/2/5 Cap Structure):</span>
+                      ARMs include strict caps to protect borrowers from drastic rate increases:
+                    </div>
+                  </div>
+                  <ul className="list-disc list-inside space-y-1.5 pl-2 text-gray-600">
+                    <li><strong className="text-navy">Initial Adjustment Cap:</strong> Limits how much the interest rate can change on the first adjustment date (e.g., max 2%).</li>
+                    <li><strong className="text-navy">Subsequent Adjustment Cap:</strong> Limits how much the rate can change in each subsequent adjustment period (e.g., max 2%).</li>
+                    <li><strong className="text-navy">Lifetime Adjustment Cap:</strong> Sets a maximum ceiling on how high the interest rate can rise over the entire life of the loan (e.g., max 5% above the initial rate).</li>
+                  </ul>
                 </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-gray-100">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Key Highlights & Advantages</h4>
+                <div className="grid grid-cols-1 gap-3">
+                  {[
+                    "Lower introductory interest rates & smaller initial monthly payments",
+                    "Popular options: 5/1 ARM, 7/1 ARM, and 10/1 ARM programs",
+                    "Strict built-in rate caps to protect against runaway market increases",
+                    "Opportunity to benefit automatically if broader market interest rates drop",
+                    "Ideal strategic fit for buyers staying in the home for under 10 years"
+                  ].map((benefit, idx) => (
+                    <div key={idx} className="flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-navy font-medium text-sm">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-gray-100">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Eligibility & Qualification Requirements</h4>
+                <ul className="list-disc list-inside text-sm text-gray-600 space-y-2">
+                  <li><strong className="text-navy">Credit Score:</strong> Minimum FICO score starting at 620–640+ (680+ recommended for best margins).</li>
+                  <li><strong className="text-navy">Qualifying DTI Ratio:</strong> Maximum Debt-to-Income ratio around 43%–45% (underwritten at the maximum potential adjusted rate).</li>
+                  <li><strong className="text-navy">Down Payment:</strong> Minimum down payment starting at 3% to 5% for conventional ARMs.</li>
+                  <li><strong className="text-navy">Financial Reserves:</strong> Demonstrated liquid reserves (typically 2 to 6 months of mortgage payments) to buffer against future adjustment cycles.</li>
+                  <li><strong className="text-navy">Income Verification:</strong> Full standard documentation (W-2s, recent pay stubs, 2 years tax returns).</li>
+                </ul>
+              </div>
+
+            </div>
+
+            {/* Interactive Calculator, Quick Contact & Form 1003 Hub */}
+            <div className="lg:col-span-5 space-y-6">
+              
+              {/* Dedicated ARM Payment Estimator Card */}
+              <div className="bg-white p-8 rounded-3xl shadow-luxury border border-gray-100 space-y-5">
                 <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{item.label}</p>
-                  <p className="text-sm font-semibold text-navy">{item.value}</p>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-blue-600">Custom Calculator</span>
+                  <h3 className="text-xl font-bold text-navy mt-1">ARM Payment Estimator</h3>
+                  <p className="text-gray-500 text-xs mt-1">Estimates initial fixed-period monthly payment before rate resets.</p>
                 </div>
-              </div>
-            ))}
-          </div>
-          {lead.message && (
-            <div className="pt-6 border-t border-gray-100">
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-gray-50 rounded-lg text-gray-500 mt-1">
-                  <MessageSquare className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Initial Message</p>
-                  <p className="text-sm text-navy bg-gray-50 p-3 rounded-lg mt-1">{lead.message}</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
 
-        {/* Right Column: Status & Actions */}
-        <div className="bg-white rounded-3xl shadow-card-soft border border-gray-100 p-8 space-y-6 h-fit">
-          <h2 className="text-lg font-bold text-navy border-b border-gray-100 pb-4">Lead Status</h2>
-          <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-              Update Status
-            </label>
-            <div className="flex items-center gap-2">
-              <select
-                value={lead.status}
-                onChange={(e) => handleStatusChange(e.target.value as LeadStatus)}
-                disabled={isUpdatingStatus}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-navy font-bold text-navy disabled:opacity-70"
-              >
-                {leadStatuses.map(status => (
-                  <option key={status} value={status}>{status}</option>
-                ))}
-              </select>
-              {isUpdatingStatus && <RefreshCw className="w-4 h-4 text-gray-500 animate-spin" />}
-            </div>
-            {statusUpdateMessage && (
-              <div className="text-xs font-bold text-emerald-600 mt-2 flex items-center gap-1.5">
-                <CheckCircle className="w-3.5 h-3.5" />
-                {statusUpdateMessage}
+                <div className="space-y-4 pt-2">
+                  <div>
+                    <label className="block text-xs font-bold text-navy mb-1">ARM Program Structure</label>
+                    <select 
+                      value={armStructure} 
+                      onChange={(e) => setArmStructure(e.target.value)}
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-navy font-bold text-navy"
+                    >
+                      <option value="5/1">5/1 ARM (5 Yrs Fixed @ 5.375%)</option>
+                      <option value="7/1">7/1 ARM (7 Yrs Fixed @ 5.625%)</option>
+                      <option value="10/1">10/1 ARM (10 Yrs Fixed @ 5.875%)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-navy mb-1">Loan Amount ($)</label>
+                    <input 
+                      type="number" 
+                      value={loanAmount} 
+                      onChange={(e) => setLoanAmount(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-navy font-bold text-navy" 
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-navy mb-1">Total Loan Term</label>
+                    <select 
+                      value={loanTermYears} 
+                      onChange={(e) => setLoanTermYears(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-navy font-bold text-navy"
+                    >
+                      <option value={30}>30 Years Amortization</option>
+                      <option value={15}>15 Years Amortization</option>
+                    </select>
+                  </div>
+
+                  <div className="bg-navy text-white p-4 rounded-2xl flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-gray-300 uppercase tracking-wider block">Initial Monthly Payment</span>
+                      <span className="text-2xl font-black text-silver-light">${calculateInitialMonthlyPayment().toLocaleString()}</span>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                      <Calculator className="w-5 h-5 text-silver" />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-gray-400 text-center italic">* Payment reflects the initial fixed period based on {initialInterestRate}% interest rate.</p>
+                </div>
               </div>
-            )}
+
+              {/* 1. Quick Contact Form Card with reCAPTCHA */}
+              <div className="bg-white p-8 rounded-3xl shadow-luxury border border-gray-100 space-y-4">
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-emerald-600">Initial Consultation</span>
+                  <h3 className="text-xl font-bold text-navy mt-1">Connect With an Advisor</h3>
+                  <p className="text-gray-500 text-xs mt-1">Send your details to discuss ARM rate caps and see if an adjustable mortgage fits your financial timeline.</p>
+                </div>
+
+                <form onSubmit={handleContactSubmit} className="space-y-4 pt-2">
+                  <div>
+                    <label className="block text-xs font-bold text-navy mb-1">Full Name</label>
+                    <input type="text" placeholder="Enter your full name" required className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-navy" />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-navy mb-1">Email Address</label>
+                    <input type="email" placeholder="name@example.com" required className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-navy" />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-navy mb-1">Phone Number</label>
+                    <input type="tel" placeholder="+1 (949) 000-0000" required className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-navy" />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-navy mb-1">Home Address / Location</label>
+                    <input type="text" placeholder="City, State, Zip" required className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-navy" />
+                  </div>
+
+                  {/* reCAPTCHA Verification Widget */}
+                  <div className="pt-2 flex flex-col items-center justify-center">
+                    <ReCAPTCHA
+                      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6Ld_YourPlaceholderSiteKeyHere_x"}
+                      onChange={(token) => {
+                        setCaptchaToken(token);
+                        setCaptchaError(false);
+                      }}
+                    />
+                    {captchaError && (
+                      <span className="text-[11px] text-red-500 font-bold mt-1 flex items-center gap-1">
+                        <ShieldAlert className="w-3.5 h-3.5" /> Please complete the reCAPTCHA verification.
+                      </span>
+                    )}
+                  </div>
+
+                  <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 rounded-xl shadow-md flex items-center justify-center gap-2 text-xs">
+                    <Send className="w-4 h-4" /> Request Consultation <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </form>
+              </div>
+
+              {/* 2. Form 1003 Navigation Card */}
+              <div className="bg-white p-8 rounded-3xl shadow-luxury border border-gray-100 space-y-4">
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-blue-600">Ready to Proceed</span>
+                  <h3 className="text-xl font-bold text-navy mt-1">Apply via Form 1003</h3>
+                  <p className="text-gray-500 text-xs mt-1">
+                    Have you chosen your ARM term? Proceed directly to our official uniform residential loan application.
+                  </p>
+                </div>
+
+                <Link href="/apply/form-1003" className="block">
+                  <Button className="w-full bg-navy hover:bg-navy-light text-white font-semibold py-3.5 rounded-xl shadow-md flex items-center justify-center gap-2 text-xs">
+                    <FileSpreadsheet className="w-4 h-4" /> Open Official Form 1003 <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+
+            </div>
+
           </div>
+
         </div>
-      </div>
+      </main>
     </div>
   );
 }

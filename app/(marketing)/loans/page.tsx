@@ -2,23 +2,21 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/layout/header";
-import { db } from "@/lib/firebase-admin";
-// Import professional icons that accurately represent each loan type
+import { Metadata } from 'next';
+import { db } from '@/lib/db';
+import { loanPrograms as loanProgramsSchema } from '@/lib/schema';
+import { asc } from 'drizzle-orm';
 import { 
   ShieldCheck, 
   TrendingUp, 
-  HomeIcon,
   Home, 
   Building2, 
   Award, 
-  FileText 
+  FileText,
+  ArrowRight,
 } from "lucide-react";
 
-// تعريف واجهة لنوع بيانات القرض لزيادة أمان الكود
-import { Metadata } from 'next'; // Interface for loan data type for type safety
-
 export async function generateMetadata(): Promise<Metadata> {
-  // يمكنك هنا جلب بيانات ديناميكية إذا أردت
   const title = "Explore All Loan Programs | Cyril Financial Group";
   const description = "Discover a wide range of mortgage solutions at Cyril Financial, including FHA, VA, Conventional, Jumbo, and ARM loans. Find the perfect financing for your home or investment property today.";
   
@@ -32,36 +30,43 @@ export async function generateMetadata(): Promise<Metadata> {
     },
   };
 }
+
 interface LoanProgram {
-  id: string;
+  id: number;
   name: string;
-  description: string;
+  subtitle: string; // سنستخدم الوصف المختصر هنا
   slug: string;
   icon: string;
 }
 
 const iconMap: { [key: string]: React.ReactNode } = {
-  "shield-check": <ShieldCheck className="w-5 h-5 text-white drop-shadow-sm" />,
-  "trending-up": <TrendingUp className="w-5 h-5 text-white drop-shadow-sm" />,
-  "home": <Home className="w-5 h-5 text-white drop-shadow-sm" />,
-  "building-2": <Building2 className="w-5 h-5 text-white drop-shadow-sm" />,
-  "award": <Award className="w-5 h-5 text-white drop-shadow-sm" />,
-  "file-text": <FileText className="w-5 h-5 text-white drop-shadow-sm" />,
-  "default": <ShieldCheck className="w-5 h-5 text-white drop-shadow-sm" />,
+  "shield-check": <ShieldCheck className="w-6 h-6 text-white drop-shadow-sm" />,
+  "trending-up": <TrendingUp className="w-6 h-6 text-white drop-shadow-sm" />,
+  "home": <Home className="w-6 h-6 text-white drop-shadow-sm" />,
+  "building-2": <Building2 className="w-6 h-6 text-white drop-shadow-sm" />,
+  "award": <Award className="w-6 h-6 text-white drop-shadow-sm" />,
+  "file-text": <FileText className="w-6 h-6 text-white drop-shadow-sm" />,
+  "refresh-cw": <TrendingUp className="w-6 h-6 text-white drop-shadow-sm" />, // أيقونة للـ Refinance
+  "default": <ShieldCheck className="w-6 h-6 text-white drop-shadow-sm" />,
 };
 
 async function getLoanPrograms(): Promise<LoanProgram[]> {
   try {
-    const programsRef = db.collection('loanPrograms').orderBy('order', 'asc');
-    const snapshot = await programsRef.get();
-    if (snapshot.empty) {
-      console.log("No loan programs found in Firestore.");
-      return [];
-    }
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as LoanProgram));
+    const results = await db
+      .select({
+        id: loanProgramsSchema.id,
+        name: loanProgramsSchema.name,
+        subtitle: loanProgramsSchema.subtitle,
+        slug: loanProgramsSchema.slug,
+        icon: loanProgramsSchema.icon,
+      })
+      .from(loanProgramsSchema)
+      .orderBy(asc(loanProgramsSchema.sortOrder));
+
+    return results as LoanProgram[];
   } catch (error) {
-    console.error("Error fetching loan programs:", error);
-    return []; // Return an empty array in case of an error
+    console.error("Error fetching loan programs from Vercel Postgres:", error);
+    return []; 
   }
 }
 
@@ -75,14 +80,13 @@ export default async function LoanProgramsPage() {
       <main className="flex-1 flex flex-col">
         {/* Page Header Section */}
         <section className="py-20 px-6 text-center relative overflow-hidden isolate">
-          {/* Background image with overlay */}
-          <Image // Added Image component for background
-            src="/images/office-background.jpg" // يجب إضافة هذه الصورة إلى public/images
+          {/* Background image - تم إزالة quality={80} لتجنب خطأ الإعدادات */}
+          <Image 
+            src="/images/office-background.jpg"
             alt="Modern office background"
-            layout="fill"
-            objectFit="cover"
-            quality={80}
-            className="-z-10"
+            fill
+            priority
+            className="object-cover -z-10"
           />
           <div className="absolute inset-0 bg-navy/80 -z-10"></div>
 
@@ -103,14 +107,14 @@ export default async function LoanProgramsPage() {
         <section className="py-20 px-6 flex-1">
           <div className="max-w-6xl mx-auto">
             {loanProgramsList.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {loanProgramsList.map((program) => (
                   <Link
-                    key={program.id} // استخدام id فريد كمفتاح لتحسين الأداء
+                    key={program.id}
                     href={`/loans/${program.slug}`}
                     className="bg-white p-8 rounded-3xl shadow-card-soft border border-gray-100 flex items-start justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
                   >
-                    <div className="flex items-start gap-5"> {/* Icon container with metallic gradient */}
+                    <div className="flex items-start gap-5">
                       {/* حاوية الأيقونة بالتدرج المعدني اللامع */}
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-b from-[#C5C6C8] via-[#88898D] to-[#919296] shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),0_4px_8px_rgba(0,0,0,0.1)] border border-slate-300/80 flex items-center justify-center shrink-0 mt-1">
                         {iconMap[program.icon] || iconMap.default}
@@ -120,14 +124,14 @@ export default async function LoanProgramsPage() {
                         <h3 className="text-lg font-bold text-navy group-hover:text-blue-600 transition-colors">
                           {program.name}
                         </h3>
-                        <p className="text-xs text-gray-500 leading-relaxed max-w-md">
-                          {program.description}
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                          {program.subtitle}
                         </p>
                       </div>
                     </div>
 
                     <span className="w-8 h-8 rounded-full bg-gray-50 group-hover:bg-blue-50 text-gray-400 group-hover:text-blue-600 flex items-center justify-center transition-colors shrink-0 mt-1">
-                      →
+                      <ArrowRight className="w-4 h-4" />
                     </span>
                   </Link>
                 ))}

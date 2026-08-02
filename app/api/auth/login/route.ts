@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { signIn } from '@/lib/auth';
+import { AuthError } from 'next-auth';
 
 export async function POST(req: Request) {
   try {
@@ -11,33 +13,23 @@ export async function POST(req: Request) {
       );
     }
 
-    // Firebase authentication is typically handled on the client side using signInWithEmailAndPassword.
-    // If you need server-side validation or custom token creation, integrate Firebase Admin SDK here.
-    
-    // Simulating user authentication response structure for your frontend flow:
-    if (email && password) {
+    // Use the signIn function from next-auth with the credentials provider
+    await signIn('credentials', { email, password, redirect: false });
+
+    return NextResponse.json({ success: true, message: "Successfully logged in." }, { status: 200 });
+
+  } catch (error) {
+    if (error instanceof AuthError) {
+      // Handle specific authentication errors from next-auth
       return NextResponse.json(
-        { 
-          success: true, 
-          message: "Successfully logged in.",
-          user: {
-            id: "firebase-user-id-placeholder",
-            email: email,
-          }
-        },
-        { status: 200 }
+        { success: false, message: "Invalid login credentials." },
+        { status: 401 }
       );
     }
 
-    return NextResponse.json(
-      { success: false, message: "Invalid login credentials." },
-      { status: 401 }
-    );
-
-  } catch (error) {
     console.error("Login API Error:", error);
     return NextResponse.json(
-      { success: false, message: "Internal server error. Please try again later." },
+      { success: false, message: "An internal server error occurred." },
       { status: 500 }
     );
   }

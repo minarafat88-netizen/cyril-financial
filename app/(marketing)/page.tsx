@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Header } from "@/components/layout/header";
 // استيراد مساعد الذكاء الاصطناعي للرد على العملاء
 import { AiSupportChat } from "@/components/widgets/ai-support-chat";
@@ -46,12 +47,16 @@ export default function HomePage() {
 
       {/* Main Section */}
       {/* Hero Section with background image */}
-      <section 
-        className="relative py-24 px-6 bg-navy text-white bg-cover bg-center" 
-        style={{ backgroundImage: "url('/images/hero-background.jpg')" }}
-      >
+      <section className="relative py-24 px-6 text-white isolate">
+        <Image
+          src="/images/hero-background.jpg"
+          alt="Abstract financial background"
+          fill
+          className="-z-10 object-cover"
+          priority // Important: Load the main hero image first
+        />
         {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-navy opacity-60"></div>
+        <div className="absolute inset-0 bg-navy opacity-60 -z-10"></div>
         <div className="relative max-w-7xl mx-auto space-y-12 z-10"> {/* Ensure content is above overlay */}
           
           {/* Header Title Section */}
@@ -69,19 +74,20 @@ export default function HomePage() {
 
           {/* Loan Programs Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {loanPrograms.map((program, idx) => (
-              <div
-                key={idx}
-                className="bg-white p-8 rounded-3xl border border-gray-100 shadow-card-soft hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+            {loanPrograms.map((program) => (
+              <Link
+                key={program.href} // استخدام href كمفتاح فريد وهو أفضل من index
+                href={program.href}
+                className="group bg-white p-8 rounded-3xl border border-gray-100 shadow-card-soft hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
               >
                 <div className="space-y-6">
                   {/* حاوية الأيقونة ذات التدرج المعدني اللامع المطلوب */}
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-[#C5C6C8] via-[#88898D] to-[#919296] shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),0_4px_8px_rgba(0,0,0,0.12)] border border-slate-300/80 flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-[#C5C6C8] via-[#88898D] to-[#919296] shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),0_4px_8px_rgba(0,0,0,0.12)] border border-slate-300/80 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
                     {program.icon}
                   </div>
                   
                   <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-navy tracking-tight">
+                    <h3 className="text-xl font-bold text-navy tracking-tight transition-colors duration-300 group-hover:text-blue-600">
                       {program.title}
                     </h3>
                     <p className="text-xs text-gray-500 leading-relaxed">
@@ -90,15 +96,14 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-gray-50">
-                  <Link
-                    href={program.href}
-                    className="text-xs font-bold text-navy hover:text-blue-600 transition-colors flex items-center gap-1.5"
-                  >
-                    Explore {program.title.split(" ")[0]} →
-                  </Link>
+                {/* تحسين شكل الرابط السفلي */}
+                <div className="pt-6 mt-auto">
+                  <div className="text-xs font-bold text-navy transition-colors duration-300 group-hover:text-blue-600 flex items-center justify-between border-t border-gray-100 pt-4">
+                    <span>Explore</span>
+                    <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 

@@ -1,32 +1,29 @@
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import NextAuth from 'next-auth';
+import { authConfig } from '@/auth.config';
 
-const JWT_SECRET = process.env.JWT_SECRET_KEY;
+/**
+ * This file exports the main Auth.js functions.
+ * - `handlers` contains GET and POST API route handlers.
+ * - `auth` is for getting the session on the server-side.
+ * - `signIn` and `signOut` are for client-side authentication actions.
+ */
+export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
 
-export interface JWTPayload {
-  userId: string;
-  email: string;
-  role: "SUPER_ADMIN" | "LOAN_OFFICER" | "PROCESSOR" | "CLIENT";
-}
-
-export function verifyAuthToken(token: string): JWTPayload | null {
-  if (!JWT_SECRET) {
-    return null;
-  }
-
+export async function verifyAuthToken(token?: string) {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
-    return decoded;
+    const session = await auth();
+    if (!session || !session.user) return null;
+    return session.user;
   } catch (error) {
     return null;
   }
 }
 
 export async function getCurrentUserSession() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("cyril_auth_token")?.value;
-
-  if (!token) return null;
-
-  return verifyAuthToken(token);
+  try {
+    const session = await auth();
+    return session;
+  } catch (error) {
+    return null;
+  }
 }

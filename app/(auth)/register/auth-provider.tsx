@@ -2,74 +2,79 @@
 
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth, db } from '@/lib/firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
 
-// 1. Define the shape of user data from Firestore
 export interface UserProfile {
-  uid: string;
-  displayName: string;
+  id?: string | number;
+  uid?: string | number;
+  displayName?: string;
+  name?: string;
   email: string;
   photoURL?: string;
+  image?: string;
   role: 'USER' | 'LOAN_OFFICER' | 'SUPER_ADMIN';
-  phoneNumber?: string; // Add phoneNumber to UserProfile
+  phoneNumber?: string;
 }
 
-// 2. تعريف شكل السياق
 interface AuthContextType {
-  user: User | null;
+  user: any | null;
   userProfile: UserProfile | null;
   loading: boolean;
   logout: () => Promise<void>;
 }
 
-// 3. Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// 4. Create the Provider
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        // Fetch additional user data from Firestore
-        const userDocRef = doc(db, 'users', firebaseUser.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          setUserProfile(userDoc.data() as UserProfile);
+    // جلب بيانات المستخدم الحالي من الـ API الخاص بالسيرفر
+    async function checkUserSession() {
+      try {
+        const res = await fetch('/api/auth/me'); // تأكد من توفر هذا المسار أو قم بتعديله حسب نظام المصادقة لديك
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user || data);
+          setUserProfile(data.profile || data);
+        } else {
+          setUser(null);
+          setUserProfile(null);
         }
-      } else {
+      } catch (error) {
         setUser(null);
         setUserProfile(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    }
 
-    return () => unsubscribe();
+    checkUserSession();
   }, []);
 
   const logout = async () => {
-    await auth.signOut();
-    // (Optional) You can call an API to revoke the server-side cookie
+    try {
+      await fetch('/api/auth/signout', { method: 'POST' });
+    } catch (e) {
+      console.error('Logout error:', e);
+    }
+    setUser(null);
+    setUserProfile(null);
     router.push('/');
+    router.refresh();
   };
 
   const value = { user, userProfile, loading, logout };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }
 
-// 5. Create a custom Hook to easily use the context
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {

@@ -6,7 +6,7 @@ Framework: Next.js 14 (App Router, Server Actions, TypeScript)
 
 Styling: Tailwind CSS, Framer Motion, Radix UI
 
-Database & BaaS: Google Cloud Firestore (NoSQL, managed via Firebase SDK & Firebase Admin SDK)
+Database: Vercel Postgres (PostgreSQL) with Drizzle ORM
 
 Authentication: JSON Web Tokens (JWT) with HTTP-only secure cookies and bcrypt password hashing
 
@@ -21,12 +21,11 @@ cd cyril-financial
 npm install
 Configure Environment Variables:
 Create a .env.local file in the root directory and configure your Firebase credentials and authentication secrets:
-
-مقتطف الرمز
-FIREBASE_PROJECT_ID=cyrilfinancial
-FIREBASE_CLIENT_EMAIL=your-client-email@...
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-JWT_SECRET=your-secure-jwt-secret
+Create a `.env.local` file in the root directory and configure your Vercel Postgres connection string and authentication secret. You can get the connection string from your Vercel project dashboard.
+```
+POSTGRES_URL="your-vercel-postgres-connection-string"
+AUTH_SECRET="your-secure-auth-secret-for-next-auth"
+```
 Run Development Server:
 
 Bash

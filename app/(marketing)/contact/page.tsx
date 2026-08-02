@@ -11,8 +11,15 @@ export default function ContactPage() {
 
       {/* Hero Section */}
       {/* Modified: Replaced solid background with image and overlay */}
-      <section className="py-20 px-6 text-center text-white relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: "url('/images/contact-hero.jpg')" }}>
-        <div className="absolute inset-0 bg-navy opacity-70"></div> {/* Overlay */}
+      <section className="py-20 px-6 text-center text-white relative overflow-hidden isolate">
+        <Image
+          src="/images/contact-hero.jpg"
+          alt="Cyril Financial office for contact"
+          layout="fill"
+          objectFit="cover"
+          className="-z-10"
+        />
+        <div className="absolute inset-0 bg-navy opacity-70 -z-10"></div> {/* Overlay */}
         <div className="max-w-3xl mx-auto space-y-4 relative z-10"> {/* Content above overlay */}
           <div className="inline-block px-5 py-1.5 bg-white/10 border border-white/20 text-blue-200 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-sm">
             Get In Touch

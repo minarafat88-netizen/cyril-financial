@@ -1,43 +1,69 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+export const dynamic = "force-dynamic";
 
-export async function POST(req: Request) {
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { leads as leadsTable } from "@/lib/schema";
+import { desc, InferInsertModel } from "drizzle-orm";
+import { getCurrentUserSession } from "@/lib/auth";
+
+// Define a type for inserting a new lead to ensure type safety
+type InsertLead = InferInsertModel<typeof leadsTable>;
+
+/**
+ * GET /api/leads
+ * Fetches all leads, intended for admin use.
+ */
+export async function GET() {
   try {
-    const body = await req.json();
-    const { firstName, lastName, email, phone, interest, message } = body;
+    // Use the centralized session helper for authentication
+    const session = await getCurrentUserSession();
+    const user = session?.user as { role?: string | null };
 
-    // التحقق من صحة البيانات الأساسية
-    if (!firstName || !email) {
-      return NextResponse.json(
-        { success: false, message: "Missing required fields: First Name and Email are mandatory." },
-        { status: 400 }
-      );
+    // Ensure only authorized roles can access this endpoint
+    if (user?.role !== "SUPER_ADMIN" && user?.role !== "LOAN_OFFICER") {
+      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
     }
 
-    // حفظ البيانات في مجموعة 'leads' في Firestore
-    const leadRef = await addDoc(collection(db, "leads"), {
-      firstName,
-      lastName,
-      email,
-      phone,
-      interest: interest || "Not specified",
-      message: message || "",
-      status: "New", // الحالة الأولية للـ lead
-      createdAt: serverTimestamp(),
-    });
+    const allLeads = await db
+      .select()
+      .from(leadsTable)
+      .orderBy(desc(leadsTable.createdAt));
 
-    console.log("New Lead captured and saved with ID: ", leadRef.id);
-    return NextResponse.json(
-      { success: true, message: "Thank you! Your request has been received. An advisor will contact you shortly.", leadId: leadRef.id },
-      { status: 201 }
-    );
-
+    return NextResponse.json({ success: true, data: allLeads });
   } catch (error) {
-    console.error("Error capturing lead:", error);
-    return NextResponse.json(
-      { success: false, message: "Internal server error. Please try again later." },
-      { status: 500 }
-    );
+    console.error("Error fetching leads:", error);
+    return NextResponse.json({ success: false, error: "Failed to fetch leads" }, { status: 500 });
+  }
+}
+
+/**
+ * POST /api/leads
+ * Creates a new lead from a contact form or similar source.
+ */
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { name, email, phone, message, source } = body;
+
+    // Basic validation
+    if (!name || !email) {
+      return NextResponse.json({ success: false, error: "Name and email are required" }, { status: 400 });
+    }
+
+    const newLead = await db
+      .insert(leadsTable)
+      .values({
+        name,
+        email,
+        phone,
+        message,
+        source: source || 'Website Contact',
+      } as InsertLead)
+      .returning();
+
+    return NextResponse.json({ success: true, data: newLead[0] }, { status: 201 });
+  } catch (error) {
+    console.error("Error creating lead:", error);
+    return NextResponse.json({ success: false, error: "Failed to create lead" }, { status: 500 });
   }
 }

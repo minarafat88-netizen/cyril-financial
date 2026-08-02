@@ -1,14 +1,14 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebase";
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { verifyAuthToken } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { db } from "@/lib/db"; // عميل Drizzle ORM الخاص بك
+import { leads, applications } from "@/lib/schema"; // مخططات الجداول
+import { desc } from "drizzle-orm"; // لترتيب النتائج
 
 export async function GET(request: Request) {
   try {
-    // إضافة await هنا لأن cookies أصبحت دالة غير متزامنة (Async) في Next.js الحديث
     const cookieStore = await cookies();
     const token = cookieStore.get("cyril_auth_token")?.value;
 
@@ -16,50 +16,54 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    const session = verifyAuthToken(token);
-    if (!session || (session.role !== "SUPER_ADMIN" && session.role !== "LOAN_OFFICER")) {
+    const sessionData = await verifyAuthToken(token); // await the session data
+    const role = (sessionData as any)?.role ?? (sessionData as any)?.user?.role;
+
+    if (!sessionData || (role !== "SUPER_ADMIN" && role !== "LOAN_OFFICER")) {
       return NextResponse.json({ success: false, error: "Insufficient privileges" }, { status: 403 });
     }
 
-    const leadsQuery = query(collection(db, "leads"), orderBy("createdAt", "desc"), limit(3));
-    const applicationsQuery = query(collection(db, "applications"), orderBy("createdAt", "desc"), limit(3));
-    
-    const [leadsSnapshot, applicationsSnapshot] = await Promise.all([
-      getDocs(leadsQuery),
-      getDocs(applicationsQuery),
-    ]);
+    // جلب أحدث 3 عملاء محتملين (leads) باستخدام Drizzle
+    const recentLeads = await db
+      .select()
+      .from(leads)
+      .orderBy(desc(leads.createdAt))
+      .limit(3);
 
-    const activities: any = [];
+    // جلب أحدث 3 طلبات تقديم (applications) باستخدام Drizzle
+    const recentApplications = await db
+      .select()
+      .from(applications)
+      .orderBy(desc(applications.createdAt))
+      .limit(3);
 
-    leadsSnapshot.forEach(doc => {
-      const data = doc.data();
+    const activities: any[] = [];
+
+    recentLeads.forEach((data) => {
       activities.push({
-        id: `lead-${doc.id}`,
+        id: `lead-${data.id}`,
         title: "Lead Captured",
-        desc: `${data.firstName} ${data.lastName || ''} inquired about ${data.interest}`,
-        time: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
+        desc: `${data.name} inquired about a loan`, // Assuming 'name' is available in leads
+        time: data.createdAt.toISOString(),
         icon: "💬",
       });
     });
 
-    applicationsSnapshot.forEach(doc => {
-      const data = doc.data();
+    recentApplications.forEach((data) => {
       activities.push({
-        id: `app-${doc.id}`,
+        id: `app-${data.id}`,
         title: "New Application Submitted",
-        desc: `Loan Type: ${data.loanType || 'N/A'} by ${data.borrower?.firstName || ''} ${data.borrower?.lastName || ''}`,
-        time: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
+        desc: `Loan Type: ${data.loanType || "N/A"} by ${data.name}`,
+        time: data.createdAt.toISOString(),
         icon: "🪙",
       });
     });
 
-    // فرز جميع الأنشطة حسب التاريخ وتحديد أحدث 5
     const sortedActivities = activities
       .sort((a: any, b: any) => new Date(b.time).getTime() - new Date(a.time).getTime())
       .slice(0, 5);
 
     return NextResponse.json({ success: true, data: sortedActivities });
-
   } catch (error) {
     console.error("Error fetching recent activity:", error);
     return NextResponse.json({ success: false, error: "Failed to fetch recent activity" }, { status: 500 });

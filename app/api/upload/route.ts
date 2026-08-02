@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { adminStorage } from "@/lib/firebase-admin";
 import { verifyAuthToken } from "@/lib/auth";
+
+// adminStorage is expected to be attached to the global object in certain runtimes.
+// Use a local any-typed reference to avoid TS errors when the global isn't declared.
+const adminStorage: any = (globalThis as any).adminStorage;
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_CONTENT_TYPES = new Set([
@@ -15,9 +18,10 @@ export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("cyril_auth_token")?.value;
-    const session = token ? verifyAuthToken(token) : null;
+    const session = token ? await verifyAuthToken(token) : null;
 
-    if (!session || (session.role !== "SUPER_ADMIN" && session.role !== "LOAN_OFFICER")) {
+    const role = (session as any)?.role;
+    if (!session || (role !== "SUPER_ADMIN" && role !== "LOAN_OFFICER")) {
       return NextResponse.json({ success: false, error: "Unauthorized upload access" }, { status: 403 });
     }
 

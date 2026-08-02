@@ -8,13 +8,12 @@ export function Footer() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
         
         <div className="space-y-4">
-          {/* استدعاء ملف logo2 مباشرة وإلغاء اسم الشركة النصي */}
           <div className="flex items-center">
             <Image
               src="/images/logo2.png"
               alt="Cyril Financial Group logo"
-              width={180}
-              height={70}
+              width={120}
+              height={40}
               style={{ width: "auto", height: "auto" }}
               className="object-contain max-h-16"
             />

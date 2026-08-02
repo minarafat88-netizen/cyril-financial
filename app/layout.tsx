@@ -3,6 +3,7 @@ import { Inter, Montserrat } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/layout/footer";
 import { FloatingContact } from "@/components/widgets/floating-contact";
+import { SessionProvider } from 'next-auth/react';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -76,14 +77,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${montserrat.variable}`}>
-      <body className="font-sans bg-gray-50 text-slate antialiased selection:bg-emerald selection:text-white">
-        {children}
-        {/* Main site footer */}
-        <Footer />
-        {/* Floating contact widget */}
-        <FloatingContact />
-      </body>
-    </html>
+    <SessionProvider>
+      <html lang="en" className={`${inter.variable} ${montserrat.variable}`}>
+        <body className="font-sans bg-gray-50 text-slate antialiased selection:bg-emerald selection:text-white">
+          {children}
+          {/* Main site footer */}
+          <Footer />
+          {/* Floating contact widget */}
+          <FloatingContact />
+        </body>
+      </html>
+    </SessionProvider>
   );
 }

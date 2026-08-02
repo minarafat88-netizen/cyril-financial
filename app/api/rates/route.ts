@@ -1,26 +1,29 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { db } from "@/lib/db"; // عميل Drizzle ORM الخاص بك
+import { mortgageRates } from "@/lib/schema"; // مخطط جدول أسعار الرهن العقاري
+import { desc } from "drizzle-orm"; // لترتيب النتائج تنازلياً
+
 
 export async function GET() {
   try {
-    // جلب أسعار الفائدة من فايربيز مرتبة حسب تاريخ التحديث تنازلياً
-    const q = query(collection(db, "mortgageRates"), orderBy("updatedAt", "desc"));
-    const querySnapshot = await getDocs(q);
+    // جلب أسعار الفائدة من PostgreSQL باستخدام Drizzle، مرتبة حسب تاريخ التحديث تنازلياً
+    const rates = await db
+      .select()
+      .from(mortgageRates)
+      .orderBy(desc(mortgageRates.updatedAt));
 
-    const rates = querySnapshot.docs.map(doc => {
-      const data = doc.data();
+    // تنسيق البيانات، على سبيل المثال، تحويل كائنات التاريخ إلى سلاسل ISO
+    const formattedRates = rates.map(rate => {
       return {
-        id: doc.id,
-        ...data,
-        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : data.updatedAt || new Date().toISOString(),
+        ...rate,
+        updatedAt: rate.updatedAt.toISOString(), // التأكد من أن updatedAt هو سلسلة ISO
       };
     });
 
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
-      data: rates,
+      data: formattedRates,
     }, {
       headers: {
         "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
