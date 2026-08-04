@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
     }
 
-    // التحقق مما إذا كان البريد الإلكتروني أو رقم الهاتف موجودًا بالفعل في استعلام واحد
+    // Check if the email or phone number already exists in a single query
     const existingUser = await db.select({
         email: users.email,
         phone: users.phone
@@ -34,18 +34,18 @@ export async function POST(req: Request) {
       }
     }
 
-    // توليد كود OTP مكون من 6 أرقام
+    // Generate a 6-digit OTP code
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + OTP_EXPIRATION_MINUTES * 60 * 1000);
 
-    // تشفير كلمة المرور مؤقتاً لتخزينها لحين التحقق
+    // Temporarily hash the password to store it until verification
     const hashedPassword = await bcrypt.hash(password, 10);
     const fullName = `${firstName} ${lastName}`;
 
-    // حذف أي طلب سابق لنفس الإيميل إن وجد
+    // Delete any previous OTP request for the same email
     await db.delete(otps).where(eq(otps.email, email));
 
-    // حفظ البيانات في جدول الـ OTP مؤقتاً
+    // Temporarily save the data in the OTPs table
     await db.insert(otps).values({
       email: email,
       code: otpCode,
@@ -57,9 +57,9 @@ export async function POST(req: Request) {
       },
     });
 
-    // إرسال الإيميل عبر Resend
+    // Send email via Resend
     await resend.emails.send({
-      from: 'Cyril Financial <onboarding@resend.dev>', // أو نطاقك الخاص إذا قمت بربطه
+      from: 'Cyril Financial <onboarding@resend.dev>', // Or your own domain if you have it configured
       to: email,
       subject: 'Your Verification Code - Cyril Financial',
       html: `

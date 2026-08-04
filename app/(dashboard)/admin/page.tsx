@@ -1,77 +1,137 @@
 "use client";
 
-import React from "react";
-import Link from "next/link";
-// 1. قمنا باستيراد مكون الأنشطة الحديثة هنا
-import { RecentActivityWidget } from "@/components/widgets/recent-activity";
+import React, { useState, useEffect } from 'react';
+import { LoanTypeModal } from '@/components/admin/LoanTypeModal'; // استيراد المكون الجديد
+import { PlusCircle, Edit, Trash2, Loader2, AlertTriangle } from 'lucide-react';
 
-export default function AdminDashboardPage() {
+// Define the LoanType interface
+interface LoanType {
+  id: number;
+  name: string;
+  description: string | null;
+  interestRate: string; // decimal is often a string
+  isActive: boolean;
+}
+
+export default function LoanTypesPage() {
+  const [loanTypes, setLoanTypes] = useState<LoanType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingLoanType, setEditingLoanType] = useState<LoanType | null>(null);
+
+  // Function to fetch loan types
+  const fetchLoanTypes = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/loan-types');
+      if (!response.ok) throw new Error('Failed to fetch data.');
+      const data = await response.json();
+      if (data.success) {
+        setLoanTypes(data.data);
+      } else {
+        throw new Error(data.error || 'An unknown error occurred.');
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLoanTypes();
+  }, []);
+
+  const handleAdd = () => {
+    setEditingLoanType(null); // لا يوجد نوع للتعديل، لذا هو إضافة
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (loanType: LoanType) => {
+    setEditingLoanType(loanType);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this loan type?')) return;
+
+    try {
+      const response = await fetch(`/api/admin/loan-types/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      if (data.success) {
+        // Refresh the list after deletion
+        setLoanTypes(prev => prev.filter(lt => lt.id !== id));
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      alert('An unexpected error occurred.');
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-surface flex flex-col md:flex-row font-sans">
-      
-      {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 bg-navy text-white min-h-screen flex flex-col border-r border-navy-light">
-        <div className="h-20 flex items-center px-6 border-b border-white/10">
-          <Link href="/admin" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-silver-gradient rounded-lg flex items-center justify-center font-black text-navy text-xs">
-              CFG
-            </div>
-            <span className="text-sm font-extrabold tracking-widest text-silver">ADMIN</span>
-          </Link>
-        </div>
-        <nav className="flex-1 px-4 py-6 space-y-2">
-          <Link href="/admin" className="block px-4 py-3 bg-white/10 rounded-xl text-sm font-bold text-white border border-white/5">Overview</Link>
-          <Link href="/admin/applications" className="block px-4 py-3 rounded-xl text-sm font-medium text-silver-dark hover:bg-white/5 transition-colors">Applications</Link>
-          <Link href="/admin/leads" className="block px-4 py-3 rounded-xl text-sm font-medium text-silver-dark hover:bg-white/5 transition-colors">Leads</Link>
-          <Link href="/admin/analytics" className="block px-4 py-3 rounded-xl text-sm font-medium text-silver-dark hover:bg-white/5 transition-colors">Analytics</Link>
-          <Link href="/admin/settings" className="block px-4 py-3 rounded-xl text-sm font-medium text-silver-dark hover:bg-white/5 transition-colors">Settings</Link>
-        </nav>
-      </aside>
+    <div className="p-6 sm:p-10 font-sans">
+      <LoanTypeModal
+        isOpen={isModalOpen}
+        setIsOpen={setIsModalOpen}
+        loanTypeToEdit={editingLoanType}
+        onSuccess={fetchLoanTypes} // تمرير دالة التحديث
+      />
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold text-navy">Manage Loan Types</h1>
+        <button onClick={handleAdd} className="flex items-center gap-2 bg-navy text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-opacity-90 transition-all shadow-sm">
+          <PlusCircle size={16} />
+          Add New Type
+        </button>
+      </div>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
-        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 sticky top-0 z-10">
-          <h1 className="text-xl font-bold text-navy">Dashboard Overview</h1>
-          <div className="flex items-center gap-4">
-            <div className="w-8 h-8 rounded-full bg-gray-200 border border-gray-300"></div>
+      <div className="bg-white rounded-2xl shadow-card-soft border border-gray-100 overflow-hidden">
+        {loading ? (
+          <div className="p-10 text-center text-gray-500 flex items-center justify-center gap-2">
+            <Loader2 className="animate-spin" /> Loading loan types...
           </div>
-        </header>
-
-        <div className="p-8 space-y-8">
-          
-          {/* KPI Stat Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Total Active Applications</span>
-              <span className="text-3xl font-black text-navy">124</span>
-              <span className="text-xs font-bold text-[#059669] mt-2">+12% from last month</span>
-            </div>
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">New Leads</span>
-              <span className="text-3xl font-black text-navy">38</span>
-              <span className="text-xs font-bold text-[#059669] mt-2">+5% from last week</span>
-            </div>
-            <div className="bg-navy p-6 rounded-2xl shadow-lg border border-navy-light flex flex-col justify-center text-white">
-              <span className="text-xs font-bold text-silver-dark uppercase tracking-wider mb-2">Total Funded Volume</span>
-              <span className="text-3xl font-black text-silver-light">$12.4M</span>
-              <span className="text-xs text-silver mt-2">YTD 2026</span>
-            </div>
+        ) : error ? (
+          <div className="p-10 text-center text-red-500 flex items-center justify-center gap-2">
+            <AlertTriangle /> Error: {error}
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* 2. استدعاء المكون الجديد هنا ليأخذ مساحة مناسبة بجوار المحتوى الآخر */}
-            <div className="lg:col-span-1">
-              <RecentActivityWidget />
-            </div>
-
-            {/* مساحة إضافية للرسوم البيانية أو الطلبات السريعة (اختياري مستقبلاً) */}
-            <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center justify-center text-gray-400 text-sm">
-              Chart / Graph Area Placeholder
-            </div>
-          </div>
-
-        </div>
-      </main>
+        ) : (
+          <table className="w-full text-sm text-left">
+            <thead className="bg-gray-50 border-b border-gray-200 text-xs text-gray-600 uppercase">
+              <tr>
+                <th scope="col" className="px-6 py-3">Name</th>
+                <th scope="col" className="px-6 py-3">Interest Rate</th>
+                <th scope="col" className="px-6 py-3">Status</th>
+                <th scope="col" className="px-6 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loanTypes.map((type) => (
+                <tr key={type.id} className="bg-white border-b hover:bg-gray-50">
+                  <td className="px-6 py-4 font-bold text-navy">{type.name}</td>
+                  <td className="px-6 py-4 text-gray-700">{type.interestRate}%</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${type.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {type.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button onClick={() => handleEdit(type)} className="p-2 text-gray-500 hover:text-blue-600">
+                      <Edit size={16} />
+                    </button>
+                    <button onClick={() => handleDelete(type.id)} className="p-2 text-gray-500 hover:text-red-600">
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }

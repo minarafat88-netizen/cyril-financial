@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 // استيراد أيقونات لتحسين الواجهة
 import { AlertTriangle, Archive } from "lucide-react";
+
 interface Activity {
   id: number;
   title: string;
@@ -32,6 +33,7 @@ const EmptyState = ({ icon, message }: { icon: React.ReactNode, message: string 
     <span className="text-xs">{message}</span>
   </div>
 );
+
 export function RecentActivityWidget() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,17 +43,25 @@ export function RecentActivityWidget() {
     const fetchActivities = async () => {
       setLoading(true);
       try {
-        // ملاحظة: يجب إنشاء واجهة API لجلب هذه البيانات
         const response = await fetch('/api/admin/recent-activity');
+
+        const contentType = response.headers.get("content-type");
+
+        // This is the most robust check. It covers both HTTP errors (like 401 Unauthorized)
+        // and successful responses that don't contain JSON (like a redirect to an HTML login page).
+        if (!response.ok || !contentType || !contentType.includes("application/json")) {
+          throw new Error("Session expired or unauthorized access.");
+        }
+
         const data = await response.json();
         if (data.success) {
           setActivities(data.data);
         } else {
-          setError(data.error || "Failed to fetch activity.");
+          throw new Error(data.error || "API returned an error but was not successful.");
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to fetch recent activity", error);
-        setError("An unexpected error occurred.");
+        setError(error.message);
       } finally {
         setLoading(false);
       }

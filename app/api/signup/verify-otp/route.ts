@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
     // Use a transaction to ensure both user creation and OTP deletion succeed or fail together
     await db.transaction(async (tx) => {
-      // الخطوة 1: إنشاء المستخدم الجديد في جدول users
+      // Step 1: Create the new user in the users table
       await tx.insert(users).values({ // as InsertUser
         name: name,
         email: email,
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
         role: 'user',
       } as InsertUser);
 
-      // الخطوة 2: حذف رمز التحقق المستخدم من جدول otps
+      // Step 2: Delete the used verification code from the otps table
       await tx.delete(otps).where(eq(otps.email, email));
     });
 
@@ -48,8 +48,8 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("Verify OTP Error:", error);
 
-    // التعامل مع أخطاء قيد التفرد في قاعدة البيانات
-    // (الرمز 23505 خاص بـ PostgreSQL)
+    // Handle unique constraint errors from the database
+    // (Code '23505' is specific to PostgreSQL)
     if (error.code === '23505') {
       if (error.constraint_name.includes('email')) {
         return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });

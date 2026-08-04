@@ -11,15 +11,15 @@ export async function POST(req: Request) {
   try {
     const { name, email, password } = await req.json();
 
-    // 1. التحقق من أن جميع الحقول المطلوبة موجودة
+    // 1. Check that all required fields are present
     if (!name || !email || !password) {
       return NextResponse.json(
-        { success: false, message: "Name, email, and password are required." },
+        { success: false, message: "All fields are required." },
         { status: 400 }
       );
     }
 
-    // 2. التحقق مما إذا كان المستخدم موجودًا بالفعل
+    // 2. Check if the user already exists
     const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
     if (existingUser.length > 0) {
       return NextResponse.json(
@@ -28,12 +28,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3. تشفير كلمة المرور (Hashing)
-    const hashedPassword = await bcrypt.hash(password, 10); // 10 هو عدد جولات التشفير (salt rounds)
+    // 3. Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
 
-    // 4. إدراج المستخدم الجديد في قاعدة البيانات
+    // 4. Insert the new user into the database
     await db.insert(users).values({
-      name: name, // Ensure name is included
+      name: name,
       email: email,
       password: hashedPassword,
     } as InsertUser);
