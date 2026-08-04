@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { LoanTypeModal } from '@/components/admin/LoanTypeModal'; // استيراد المكون الجديد
+import { LoanTypeModal } from '../../../components/admin/LoanTypeModal/page';
 import { PlusCircle, Edit, Trash2, Loader2, AlertTriangle } from 'lucide-react';
 
 // Define the LoanType interface
@@ -45,7 +45,7 @@ export default function LoanTypesPage() {
   }, []);
 
   const handleAdd = () => {
-    setEditingLoanType(null); // لا يوجد نوع للتعديل، لذا هو إضافة
+    setEditingLoanType(null); // Clear editing state for adding a new type
     setIsModalOpen(true);
   };
 
@@ -79,7 +79,7 @@ export default function LoanTypesPage() {
         isOpen={isModalOpen}
         setIsOpen={setIsModalOpen}
         loanTypeToEdit={editingLoanType}
-        onSuccess={fetchLoanTypes} // تمرير دالة التحديث
+        onSuccess={fetchLoanTypes} // Pass the refresh function
       />
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-navy">Manage Loan Types</h1>
