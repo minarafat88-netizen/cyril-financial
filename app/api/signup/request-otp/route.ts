@@ -5,7 +5,6 @@ import { otps, users } from '@/lib/schema';
 import { eq, or } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 
-// التعديل هنا: إضافة قيمة وهمية لحماية وقت البناء
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build');
 
 const OTP_EXPIRATION_MINUTES = 5;
