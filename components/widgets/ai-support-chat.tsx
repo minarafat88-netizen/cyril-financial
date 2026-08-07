@@ -63,7 +63,7 @@ export function AiSupportChat() {
           {/* تم إزالة الخلفية الرمادية واستدعاء الصورة مباشرة */}
           <div className="w-8 h-8 flex items-center justify-center overflow-hidden relative">
             <Image
-              src="/images/logo4.png"
+              src="/images/Logo4.png"
               alt="AI Assistant Logo"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" style={{ objectFit: 'contain' }}

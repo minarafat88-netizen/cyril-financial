@@ -10,8 +10,8 @@ export function Footer() {
         <div className="space-y-4">
           <div className="flex items-center">
             <Image
-              src="/images/logo2.png"
-              alt="Cyril Financial Group logo"
+              src="/images/Logo2.png"
+              alt="Cyril Financial Group Logo"
               width={120}
               height={40}
               style={{ width: "auto", height: "auto" }}

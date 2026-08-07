@@ -154,7 +154,7 @@ function AuthFormContent() {
       <div className="bg-navy p-6 text-center flex flex-col items-center">
         <Link href="/" className="flex items-center justify-center group mb-3">
           <Image 
-            src="/images/logo4.png"
+            src="/images/Logo4.png"
             alt="Cyril Financial Logo"
             width={56}
             height={56}

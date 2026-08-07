@@ -15,7 +15,7 @@ export default function ApplyPage() {
             {/* حاوية مربعة بحواف دائرية يملؤها logo5 بالكامل بدون نص CYRIL */}
             <div className="w-14 h-14 rounded-2xl overflow-hidden border border-gray-200 shadow-sm flex items-center justify-center bg-white">
               <Image 
-                src="/images/logo5.png"
+                src="/images/Logo5.png"
                 alt="Cyril Financial Logo"
                 width={56}
                 height={56}
