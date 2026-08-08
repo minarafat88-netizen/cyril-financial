@@ -1,50 +1,65 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { users } from '@/lib/schema';
-import { eq } from 'drizzle-orm';
-import bcrypt from 'bcryptjs';
-import type { InferInsertModel } from 'drizzle-orm';
-
-type InsertUser = InferInsertModel<typeof users>;
+import { users, passwordResetTokens, type NewUser, type NewPasswordResetToken } from '@/lib/schema'; // استيراد مخططات الجداول
+import { eq, and, gt } from 'drizzle-orm';
+import bcrypt from 'bcrypt';
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
+    const { token, newPassword } = await req.json();
 
-    // 1. Check that all required fields are present
-    if (!name || !email || !password) {
+    if (!token || !newPassword) {
       return NextResponse.json(
-        { success: false, message: "All fields are required." },
+        { success: false, message: "Token and new password are required." },
         { status: 400 }
       );
     }
 
-    // 2. Check if the user already exists
-    const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    if (existingUser.length > 0) {
+    if (newPassword.length < 8) {
       return NextResponse.json(
-        { success: false, message: "An account with this email already exists." },
-        { status: 409 } // 409 Conflict
+        { success: false, message: "New password must be at least 8 characters long." },
+        { status: 400 }
       );
     }
 
-    // 3. Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds
+  
+    const resetToken = await db.select()
+                               .from(passwordResetTokens)
+                               .where(
+                                 and(
+                                   eq(passwordResetTokens.token, token),
+                                   eq(passwordResetTokens.used, false),
+                                   gt(passwordResetTokens.expiresAt, new Date()) // التحقق مما إذا كان الرمز لم ينتهِ بعد
+                                 )
+                               )
+                               .limit(1);
 
-    // 4. Insert the new user into the database
-    await db.insert(users).values({
-      name: name,
-      email: email,
-      password: hashedPassword,
-    } as InsertUser);
+    if (!resetToken || resetToken.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "Invalid or expired password reset token." },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json({ success: true, message: "User registered successfully." }, { status: 201 });
+    const userId = resetToken[0].userId;
+
+    // 2. تشفير كلمة المرور الجديدة
+    const hashedPassword = await bcrypt.hash(newPassword, 10); // 10 هي عدد جولات التمليح (salt rounds)، اضبطها حسب الحاجة
+
+    // 3. تحديث كلمة مرور المستخدم في قاعدة البيانات
+    await db.update(users)
+            .set({ password: hashedPassword } as Partial<NewUser>)
+            .where(eq(users.id, userId));
+
+    // 4. وضع علامة على الرمز كمستخدم لمنع إعادة الاستخدام
+    await db.update(passwordResetTokens)
+            .set({ used: true } as Partial<NewPasswordResetToken>)
+            .where(eq(passwordResetTokens.id, resetToken[0].id));
+
+    return NextResponse.json({ success: true, message: "Password has been reset successfully." }, { status: 200 });
 
   } catch (error) {
-    console.error("Registration API Error:", error);
-    return NextResponse.json(
-      { success: false, message: "An internal server error occurred." },
-      { status: 500 }
-    );
+    console.error("Reset Password API Error:", error);
+    return NextResponse.json({ success: false, message: "An internal server error occurred." }, { status: 500 });
   }
 }

@@ -1,11 +1,17 @@
+import type { Metadata } from "next";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/layout/header";
-// استيراد مساعد الذكاء الاصطناعي للرد على العملاء
+// Import AI assistant for customer support
 import { AiSupportChat } from "@/components/widgets/ai-support-chat";
-// استيراد أيقونات احترافية تعبر عن كل كارت بدقة
+// Import professional icons that accurately represent each card
 import { Building2, Calculator, RefreshCw, Home, Layers } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Cyril Financial | Comprehensive Financial & Mortgage Solutions",
+  description: "Explore comprehensive financial solutions with Cyril Financial. We offer tailored mortgage advisory, loan programs like Jumbo, FHA, and VA, and tools like our mortgage calculator. Experience institutional private banking standards for your borrowing needs.",
+};
 
 const loanPrograms = [
   {
@@ -76,12 +82,12 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {loanPrograms.map((program) => (
               <Link
-                key={program.href} // استخدام href كمفتاح فريد وهو أفضل من index
+                key={program.href} // Using href as a unique key is better than index
                 href={program.href}
                 className="group bg-white p-8 rounded-3xl border border-gray-100 shadow-card-soft hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
               >
                 <div className="space-y-6">
-                  {/* حاوية الأيقونة ذات التدرج المعدني اللامع المطلوب */}
+                  {/* Icon container with the desired shiny metallic gradient */}
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-[#C5C6C8] via-[#88898D] to-[#919296] shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),0_4px_8px_rgba(0,0,0,0.12)] border border-slate-300/80 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
                     {program.icon}
                   </div>
@@ -96,7 +102,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* تحسين شكل الرابط السفلي */}
+                {/* Improved styling for the bottom link */}
                 <div className="pt-6 mt-auto">
                   <div className="text-xs font-bold text-navy transition-colors duration-300 group-hover:text-blue-600 flex items-center justify-between border-t border-gray-100 pt-4">
                     <span>Explore</span>

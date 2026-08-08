@@ -1,22 +1,27 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db"; // عميل Drizzle ORM الخاص بك
-import { mortgageRates } from "@/lib/schema"; // مخطط جدول أسعار الرهن العقاري
-import { desc } from "drizzle-orm"; // لترتيب النتائج تنازلياً
+import { db } from "@/lib/db"; // Your Drizzle ORM client
+import { mortgageRates } from "@/lib/schema"; // Mortgage rates table schema
+import { desc } from "drizzle-orm"; // To sort results in descending order
 
-
+/**
+ * API route to fetch the latest mortgage rates.
+ * Handles GET requests to retrieve all mortgage rates from the database,
+ * ordered by the most recently updated.
+ * It formats the data and adds caching headers for performance.
+ */
 export async function GET() {
   try {
-    // جلب أسعار الفائدة من PostgreSQL باستخدام Drizzle، مرتبة حسب تاريخ التحديث تنازلياً
+    // Fetch interest rates from PostgreSQL using Drizzle, ordered by update date descending
     const rates = await db
       .select()
       .from(mortgageRates)
       .orderBy(desc(mortgageRates.updatedAt));
 
-    // تنسيق البيانات، على سبيل المثال، تحويل كائنات التاريخ إلى سلاسل ISO
+    // Format the data, for example, converting Date objects to ISO strings
     const formattedRates = rates.map(rate => {
       return {
         ...rate,
-        updatedAt: rate.updatedAt.toISOString(), // التأكد من أن updatedAt هو سلسلة ISO
+        updatedAt: rate.updatedAt.toISOString(), // Ensure updatedAt is an ISO string
       };
     });
 

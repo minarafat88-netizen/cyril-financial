@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, jsonb, timestamp, integer, real} from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, varchar, jsonb, timestamp, integer, real, boolean} from 'drizzle-orm/pg-core';
 
 export const loanPrograms = pgTable('loan_programs', {
   id: serial('id').primaryKey(),
@@ -14,7 +14,7 @@ export const loanPrograms = pgTable('loan_programs', {
   sortOrder: integer('sort_order').default(0),
 });
 
-// مخطط جدول طلبات التقديم
+// Applications table schema
 export const applications = pgTable('applications', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 256 }).notNull(),
@@ -26,7 +26,7 @@ export const applications = pgTable('applications', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// مخطط جدول الأنشطة الأخيرة
+// Recent activities table schema
 export const activities = pgTable('activities', {
   id: serial('id').primaryKey(),
   title: varchar('title', { length: 256 }).notNull(),
@@ -35,7 +35,7 @@ export const activities = pgTable('activities', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// مخطط جدول العملاء المحتملين (Leads)
+// Leads table schema
 export const leads = pgTable('leads', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 256 }).notNull(),
@@ -46,7 +46,7 @@ export const leads = pgTable('leads', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// مخطط جدول قاعدة المعرفة للذكاء الاصطناعي
+// AI knowledge base table schema
 export const aiKnowledge = pgTable('ai_knowledge', {
   id: serial('id').primaryKey(),
   keywords: jsonb('keywords').$type<string[]>().notNull(),
@@ -54,12 +54,12 @@ export const aiKnowledge = pgTable('ai_knowledge', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// 👈 جدول المستخدمين المطلوب لعمل NextAuth (تمت إضافته لمنع خطأ الاستيراد)
+// Users table for NextAuth
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  phone: varchar('phone', { length: 50 }).unique(), // إضافة حقل رقم الهاتف وجعله فريداً
+  phone: varchar('phone', { length: 50 }).unique(), // Added phone number field and made it unique
   password: text('password'),
   role: varchar('role', { length: 50 }).default('user'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -77,7 +77,7 @@ export const otps = pgTable('otps', {
   }>().notNull(),
 });
 
-// مخطط جدول المستندات
+// Documents table schema
 export const documents = pgTable('documents', {
   id: serial('id').primaryKey(),
   applicationId: integer('application_id').references(() => applications.id),
@@ -91,11 +91,27 @@ export const documents = pgTable('documents', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-// مخطط جدول أسعار الرهن العقاري
+// Mortgage rates table schema
 export const mortgageRates = pgTable('mortgage_rates', {
   id: serial('id').primaryKey(),
-  name: varchar('name', { length: 256 }).notNull(), // على سبيل المثال: "30-Year Fixed"
-  rate: real('rate').notNull(), // على سبيل المثال: 6.5
+  name: varchar('name', { length: 256 }).notNull(), // e.g., "30-Year Fixed"
+  rate: real('rate').notNull(), // e.g., 6.5
   updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
-  // يمكن إضافة حقول أخرى ذات صلة هنا، مثل 'loanProgramId', 'term', 'apr'
+  // Other relevant fields can be added here, like 'loanProgramId', 'term', 'apr'
 });
+
+// Password reset tokens table schema
+export const passwordResetTokens = pgTable('password_reset_tokens', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }), // Foreign key to users table, deletes tokens if user is deleted
+  token: text('token').unique().notNull(), // The unique reset token
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(), // Token expiration time
+  used: boolean('used').default(false).notNull(), // Flag to indicate if the token has been used
+});
+
+// Inferred types for schema tables
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+export type NewPasswordResetToken = typeof passwordResetTokens.$inferInsert;

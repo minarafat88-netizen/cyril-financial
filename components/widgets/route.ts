@@ -3,10 +3,17 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/auth";
 import { cookies } from "next/headers";
-import { db } from "@/lib/db"; // عميل Drizzle ORM الخاص بك
-import { leads, applications } from "@/lib/schema"; // مخططات الجداول
-import { desc } from "drizzle-orm"; // لترتيب النتائج
+import { db } from "@/lib/db"; // Your Drizzle ORM client
+import { leads, applications } from "@/lib/schema"; // Table schemas
+import { desc } from "drizzle-orm"; // For sorting results
 
+/**
+ * API route to fetch recent activities for the admin dashboard widget.
+ * Handles GET requests. It verifies the user's auth token and role
+ * (SUPER_ADMIN or LOAN_OFFICER).
+ * Fetches the latest leads and applications from the database and returns
+ * a combined, sorted list of activities.
+ */
 export async function GET(request: Request) {
   try {
     const cookieStore = await cookies();
@@ -23,14 +30,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: "Insufficient privileges" }, { status: 403 });
     }
 
-    // جلب أحدث 3 عملاء محتملين (leads) باستخدام Drizzle
+    // Fetch the latest 3 leads using Drizzle
     const recentLeads = await db
       .select()
       .from(leads)
       .orderBy(desc(leads.createdAt))
       .limit(3);
 
-    // جلب أحدث 3 طلبات تقديم (applications) باستخدام Drizzle
+    // Fetch the latest 3 applications using Drizzle
     const recentApplications = await db
       .select()
       .from(applications)

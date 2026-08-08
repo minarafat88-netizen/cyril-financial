@@ -14,8 +14,8 @@ export function LoanCalculator({ loanType, defaultInterestRate, loanName }: Loan
   const [homeValue, setHomeValue] = useState<number>(350000);
   const [downPaymentPercent, setDownPaymentPercent] = useState<number>(loanType === 'FHA' ? 3.5 : (loanType === 'VA' ? 0 : 10));
   const [loanTermYears, setLoanTermYears] = useState<number>(30);
-  const [propertyTaxRate, setPropertyTaxRate] = useState<number>(1.2); // معدل ضريبة الأملاك السنوي الافتراضي
-  const [homeInsurance, setHomeInsurance] = useState<number>(1500); // تأمين المنزل السنوي الافتراضي
+  const [propertyTaxRate, setPropertyTaxRate] = useState<number>(1.2); // Default annual property tax rate
+  const [homeInsurance, setHomeInsurance] = useState<number>(1500); // Default annual home insurance
 
   const {
     baseLoanAmount,
@@ -35,14 +35,14 @@ export function LoanCalculator({ loanType, defaultInterestRate, loanName }: Loan
     let monthlyMIP = 0;
     let totalLoanAmount = baseLoanAmount;
 
-    // حسابات خاصة بقرض FHA
+    // FHA loan specific calculations
     if (loanType === 'FHA') {
       upfrontMIP = baseLoanAmount * 0.0175; // 1.75% UFMIP
       totalLoanAmount = baseLoanAmount + upfrontMIP;
       monthlyMIP = Math.round((baseLoanAmount * 0.0055) / 12); // ~0.55% annual MIP
     }
 
-    // حساب القسط الشهري (P&I)
+    // Calculate monthly principal & interest (P&I)
     const monthlyRate = defaultInterestRate / 100 / 12;
     const totalPayments = loanTermYears * 12;
     let monthlyPI = 0;
@@ -61,7 +61,7 @@ export function LoanCalculator({ loanType, defaultInterestRate, loanName }: Loan
 
     const totalMonthlyPayment = monthlyPI + monthlyMIP + monthlyTaxes + monthlyInsurance;
 
-    // حساب جدول الاستهلاك للرسم البياني
+    // Calculate amortization schedule for the chart
     const amortizationData = [];
     let remainingBalance = totalLoanAmount;
     for (let i = 1; i <= totalPayments; i++) {
@@ -69,12 +69,12 @@ export function LoanCalculator({ loanType, defaultInterestRate, loanName }: Loan
       const principalForMonth = monthlyPI - interestForMonth;
       remainingBalance -= principalForMonth;
 
-      // نضيف نقطة بيانات كل 12 شهر (سنوياً) لتبسيط الرسم
+      // Add a data point every 12 months (annually) to simplify the chart
       if (i % 12 === 0 || i === 1) {
         amortizationData.push({
           year: Math.floor(i / 12),
-          interest: Math.round(interestForMonth * 12), // الفائدة السنوية
-          principal: Math.round(principalForMonth * 12), // رأس المال السنوي
+          interest: Math.round(interestForMonth * 12), // Annual interest
+          principal: Math.round(principalForMonth * 12), // Annual principal
           balance: remainingBalance > 0 ? Math.round(remainingBalance) : 0,
         });
       }
@@ -149,7 +149,7 @@ export function LoanCalculator({ loanType, defaultInterestRate, loanName }: Loan
           </div>
         )}
 
-        {/* تفاصيل الدفعة الشهرية */}
+        {/* Monthly payment details */}
         <div className="space-y-1.5 text-xs border-t border-b border-gray-100 py-3">
           <div className="flex justify-between text-gray-500"><span>Principal & Interest</span><span className="font-bold text-navy">${monthlyPI.toLocaleString()}</span></div>
           <div className="flex justify-between text-gray-500"><span>Property Taxes</span><span className="font-bold text-navy">${monthlyTaxes.toLocaleString()}</span></div>
@@ -177,7 +177,7 @@ export function LoanCalculator({ loanType, defaultInterestRate, loanName }: Loan
           * Estimated at {defaultInterestRate}% interest rate. For illustrative purposes only.
         </p>
 
-        {/* قسم الرسم البياني الجديد */}
+        {/* New chart section */}
         <div className="pt-4">
            <h4 className="text-xs font-bold text-navy mb-2">Loan Balance Over Time</h4>
            <div style={{ width: '100%', height: 200 }}>

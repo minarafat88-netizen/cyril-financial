@@ -18,7 +18,7 @@ export function AiSupportChat() {
 
   useEffect(() => {
     const fetchKnowledgeBase = async () => {
-      // ملاحظة: يجب إنشاء واجهة API لجلب هذه البيانات
+
       const response = await fetch('/api/ai-knowledge');
       const data = await response.json();
       if (data.success) {
@@ -37,12 +37,11 @@ export function AiSupportChat() {
     setMessages(newMessages);
     setInput("");
 
-    // محاكاة تحليل الذكاء الاصطناعي للرد من خدمات وبيانات الموقع حصراً
     setTimeout(() => {
       const lowerInput = userMessage.toLowerCase();
       let matchedResponse = "I can only assist with inquiries related to Cyril Financial Group's loan programs, rates, and services. Please check our loan options or contact our advisory team for specific requests.";
 
-      for (const item of knowledgeBase) { // استخدام قاعدة المعرفة الديناميكية
+      for (const item of knowledgeBase) { 
         if (item.keywords.some(keyword => lowerInput.includes(keyword))) {
           matchedResponse = item.response;
           break;
@@ -60,7 +59,6 @@ export function AiSupportChat() {
           onClick={() => setIsOpen(true)}
           className="bg-navy text-white p-4 rounded-full shadow-2xl hover:bg-navy-light transition-all flex items-center gap-3 border border-silver/30 group"
         >
-          {/* تم إزالة الخلفية الرمادية واستدعاء الصورة مباشرة */}
           <div className="w-8 h-8 flex items-center justify-center overflow-hidden relative">
             <Image
               src="/images/Logo4.png"
