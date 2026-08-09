@@ -1,4 +1,6 @@
 import { type DefaultSession, type DefaultUser } from "next-auth";
+import { type JWT } from "next-auth/jwt";
+import { type UserRole } from "@/lib/schema";
 
 /**
  * Augment the built-in `User` type from `next-auth`
@@ -6,13 +8,23 @@ import { type DefaultSession, type DefaultUser } from "next-auth";
  */
 declare module "next-auth" {
   interface User extends DefaultUser {
-    role?: string | null;
+    // Use the specific role type from your schema for better type safety
+    role?: UserRole;
   }
 
   interface Session {
     user?: {
       id: string;
-      role?: string | null;
+      // Use the specific role type from your schema
+      role?: UserRole;
     } & DefaultSession["user"];
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    // Use the specific role type from your schema
+    role?: UserRole;
   }
 }

@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
-import { verifyAuthToken } from "@/lib/auth";
+import { getToken } from "next-auth/jwt";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db"; // Your Drizzle ORM client
 import { leads, applications } from "@/lib/schema"; // Table schemas
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    const sessionData = await verifyAuthToken(token); // await the session data
+    const sessionData = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
     const role = (sessionData as any)?.role ?? (sessionData as any)?.user?.role;
 
     if (!sessionData || (role !== "SUPER_ADMIN" && role !== "LOAN_OFFICER")) {

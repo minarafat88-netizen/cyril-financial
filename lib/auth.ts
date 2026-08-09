@@ -9,21 +9,30 @@ import { authConfig } from '@/auth.config';
  */
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
 
-export async function verifyAuthToken(token?: string) {
+/**
+ * A helper function to get the current user from the server-side session.
+ * Returns the user object or null if not authenticated.
+ */
+export async function getCurrentUser() {
   try {
     const session = await auth();
-    if (!session || !session.user) return null;
-    return session.user;
+    return session?.user ?? null;
   } catch (error) {
+    console.error("Error fetching current user:", error);
     return null;
   }
 }
 
+/**
+ * A helper function to get the full current session on the server-side.
+ * Returns the session object or null if not authenticated.
+ */
 export async function getCurrentUserSession() {
   try {
     const session = await auth();
     return session;
   } catch (error) {
+    console.error("Error fetching session:", error);
     return null;
   }
 }

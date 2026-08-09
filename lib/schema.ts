@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, jsonb, timestamp, integer, real, boolean} from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, varchar, jsonb, timestamp, integer, real, boolean, pgEnum} from 'drizzle-orm/pg-core';
 
 export const loanPrograms = pgTable('loan_programs', {
   id: serial('id').primaryKey(),
@@ -54,6 +54,9 @@ export const aiKnowledge = pgTable('ai_knowledge', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Define an enum for user roles for better type safety, based on your types/index.ts
+export const userRoleEnum = pgEnum('user_role', ['SUPER_ADMIN', 'LOAN_OFFICER', 'PROCESSOR', 'CLIENT']);
+
 // Users table for NextAuth
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -61,7 +64,8 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   phone: varchar('phone', { length: 50 }).unique(), // Added phone number field and made it unique
   password: text('password'),
-  role: varchar('role', { length: 50 }).default('user'),
+  // Use the enum. The default 'user' is not in your role list, so let's use 'CLIENT'.
+  role: userRoleEnum('role').default('CLIENT'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -112,6 +116,7 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
 // Inferred types for schema tables
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type UserRole = User['role'];
 
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
 export type NewPasswordResetToken = typeof passwordResetTokens.$inferInsert;

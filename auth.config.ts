@@ -1,70 +1,109 @@
 import type { NextAuthConfig } from 'next-auth';
-import Google from 'next-auth/providers/google';
-import Credentials from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from '@/lib/db';
-import { users } from '@/lib/schema';
+import { users, type User } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
-import bcrypt from 'bcryptjs';
-import type { InferInsertModel } from 'drizzle-orm';
+import bcrypt from "bcrypt";
 
-type InsertUser = InferInsertModel<typeof users>;
-
-export const authConfig = {
+export const authConfig: NextAuthConfig = {
+  // Add the Adapter to connect NextAuth with your Drizzle database.
+  adapter: DrizzleAdapter(db) as any,
+  session: {
+    strategy: "jwt",
+  },
   pages: {
     signIn: '/login', // Redirect users to /login if they are not authenticated
   },
   providers: [
-    Credentials({
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials.password) {
+        if (
+          !credentials ||
+          typeof credentials.email !== "string" ||
+          typeof credentials.password !== "string"
+        ) {
           return null;
         }
 
-        // 1. Find the user in the database
-        const userResult = await db.select().from(users).where(eq(users.email, String(credentials.email))).limit(1);
-        const user = userResult[0];
+        const userResult = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, credentials.email.toLowerCase()))
+          .limit(1);
 
-        if (!user || !user.password) {
-          // User not found or doesn't have a password (e.g., signed up with Google)
+        if (userResult.length === 0 || !userResult[0].password) {
           return null;
         }
 
-        // 2. Compare the provided password with the hashed password in the database
-        const passwordsMatch = await bcrypt.compare(String(credentials.password), user.password);
+        const user: User = userResult[0];
+        const passwordMatch = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
 
-        if (passwordsMatch) {
-          const { password, ...userWithoutPassword } = user;
-          return { ...userWithoutPassword, id: String(user.id), name: user.name || user.email }; // Ensure id is string and name is present
+        if (!passwordMatch) {
+          return null;
         }
 
-        return null; // Passwords do not match
+        return {
+          id: String(user.id),
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        } as any; // تجاوز التدقيق هنا لكي يقبل الحقول الإضافية
       },
     }),
-Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
   ],
+  // Add an events hook to handle user creation.
+  events: {
+    async createUser({ user }: any) {
+      if (user.email && user.email.toLowerCase() === 'minarafat88@gmail.com') {
+        if (user.id) {
+          await db
+            .update(users)
+            .set({ role: 'SUPER_ADMIN' } as any)
+            .where(eq(users.id, parseInt(user.id, 10)));
+        }
+      }
+    }
+  },
   callbacks: {
-    // This callback is triggered whenever a session is checked.
-    async session({ session, token }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub; // Add user ID to the session
+    // وضعنا any لتجاوز خطأ الـ role والـ id
+    async session({ session, token }: any) {
+      if (token && session.user) {
+        session.user.id = token.id;
+        session.user.role = token.role;
       }
       return session;
     },
-    // This callback is triggered on sign-in.
-    async signIn({ user, account, profile }) {
-      if (account?.provider === 'google' && user.email) {
-        // On Google sign-in, check if the user exists in our database.
-        // If not, create a new user record.
-        // Only insert fields that exist on the users table (email is required). Name is optional.
-        await db
-          .insert(users)
-          .values({ email: user.email, name: user.name || user.email } as InsertUser)
-          .onConflictDoNothing({ target: users.email });
+    async jwt({ token, user }: any) {
+      if (user) {
+        token.id = user.id;
+        if (user.id) {
+          const [dbUser] = await db
+            .select()
+            .from(users)
+            .where(eq(users.id, parseInt(user.id, 10)))
+            .limit(1);
+
+          if (dbUser) {
+            token.role = dbUser.role;
+          }
+        }
       }
-      return true; // Return true to continue the sign-in process
+      return token;
     },
   },
-} satisfies NextAuthConfig;
+  secret: process.env.NEXTAUTH_SECRET,
+};
