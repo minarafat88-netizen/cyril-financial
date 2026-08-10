@@ -79,7 +79,7 @@ export function AiSupportChat() {
               {/* تم إزالة الخلفية الرمادية من الترويسة أيضاً */}
               <div className="w-8 h-8 flex items-center justify-center overflow-hidden relative">
                 <Image
-                  src="/images/logo4.png"
+                  src="/images/Logo4.png"
                   alt="AI Assistant Logo"
                   fill
                   className="object-contain"

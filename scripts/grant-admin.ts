@@ -17,7 +17,7 @@ async function grantAdminRole(userId: string) {
 
   try {
     // Find the user by ID
-    const userToUpdate = await db.select().from(users).where(eq(users.id, parseInt(userId, 10))).limit(1);
+    const userToUpdate = await db.select().from(users).where(eq(users.id, userId)).limit(1);
 
     if (userToUpdate.length === 0) {
       console.error(`❌ Error: User with ID ${userId} not found.`);
@@ -28,7 +28,7 @@ async function grantAdminRole(userId: string) {
     // Cast to any to avoid strict type issues if 'role' is not defined on the generated type
     await db.update(users)
       .set({ role: 'SUPER_ADMIN' } as any)
-      .where(eq(users.id, parseInt(userId, 10)));
+      .where(eq(users.id, userId));
 
     console.log(`✅ Successfully granted SUPER_ADMIN role to user: ${userToUpdate[0].email || userToUpdate[0].id}`);
     console.log("Note: User will need to log out and log back in for changes to take effect.");

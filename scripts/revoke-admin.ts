@@ -17,7 +17,7 @@ async function revokeAdminRole(userId: string) {
 
   try {
     // Find the user by ID
-    const userToUpdate = await db.select().from(users).where(eq(users.id, parseInt(userId, 10))).limit(1);
+    const userToUpdate = await db.select().from(users).where(eq(users.id, userId)).limit(1);
 
     if (userToUpdate.length === 0) {
       console.error(`❌ Error: User with ID ${userId} not found.`);
@@ -27,7 +27,7 @@ async function revokeAdminRole(userId: string) {
     // Update the user's role to 'user' (or any default non-admin role)
     await db.update(users)
       .set({ role: 'user' } as any) // Set to a default non-admin role
-      .where(eq(users.id, parseInt(userId, 10)));
+      .where(eq(users.id, userId));
 
     console.log(`✅ Successfully revoked admin role from user: ${userToUpdate[0].email || userToUpdate[0].id}`);
     console.log("Note: User will need to log out and log back in for changes to take effect.");

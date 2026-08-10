@@ -74,7 +74,7 @@ export const authOptions = {
         await db
           .update(users)
           .set({ role: 'SUPER_ADMIN' } as any)
-          .where(eq(users.id, parseInt(user.id, 10)));
+          .where(eq(users.id, user.id));
       }
     }
   },
@@ -93,7 +93,7 @@ export const authOptions = {
         const [dbUser] = await db
           .select()
           .from(users)
-          .where(eq(users.id, parseInt(user.id, 10)))
+          .where(eq(users.id, user.id))
           .limit(1);
 
         if (dbUser) {

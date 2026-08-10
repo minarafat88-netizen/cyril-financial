@@ -44,6 +44,8 @@ function AuthFormContent() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // إخفاء الخطأ بمجرد أن يبدأ المستخدم في التعديل لتجربة مستخدم أفضل
+    if (formError) setFormError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,7 +55,7 @@ function AuthFormContent() {
 
     if (isSignUp) {
       if (formData.password !== formData.confirmPassword) {
-        setFormError('Passwords do not match.');
+        setFormError('Passwords do not match. Please try again.');
         setIsLoading(false);
         return;
       }
@@ -73,10 +75,12 @@ function AuthFormContent() {
           });
           
           const data = await res.json();
-          if (!res.ok) throw new Error(data.error || 'Failed to send verification email.');
+          if (!res.ok) {
+            // هنا سيتم عرض خطأ "الإيميل مستخدم مسبقاً" إذا كان قادماً من الـ API
+            throw new Error(data.error || 'Failed to send verification email. This email might already be registered.');
+          }
 
           setShowOtpStep(true);
-          alert('Verification code sent to your email.');
         } catch (err: any) {
           setFormError(err.message);
         } finally {
@@ -95,9 +99,8 @@ function AuthFormContent() {
           });
 
           const data = await res.json();
-          if (!res.ok) throw new Error(data.error || 'Invalid verification code.');
+          if (!res.ok) throw new Error(data.error || 'Invalid verification code. Please try again.');
 
-          alert('Account created successfully! Please sign in.');
           setIsSignUp(false);
           setShowOtpStep(false);
           setFormData({
@@ -117,6 +120,7 @@ function AuthFormContent() {
       }
 
     } else {
+      // Sign In Logic
       try {
         const result = await signIn('credentials', {
           email: formData.email,
@@ -128,13 +132,14 @@ function AuthFormContent() {
         setIsLoading(false);
 
         if (result?.error) {
-          setFormError('Invalid email or password.');
+          // رسالة خطأ واضحة في حالة خطأ الإيميل أو كلمة المرور
+          setFormError('Incorrect email or password. Please try again.');
         } else if (result?.url) {
           window.location.href = result.url;
         }
       } catch (error) {
         setIsLoading(false);
-        setFormError('An unexpected error occurred.');
+        setFormError('An unexpected error occurred. Please try again later.');
       }
     }
   };
@@ -170,14 +175,6 @@ function AuthFormContent() {
             : (isSignUp ? 'Join Cyril Financial for tailored borrowing suites.' : 'Access your secure client portal.')}
         </p>
       </div>
-
-      {/* Error Alert */}
-      {(urlError || formError) && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mx-6 mt-4 text-xs rounded" role="alert">
-          <p className="font-bold">Authentication Notice</p>
-          <p>{urlError || formError}</p>
-        </div>
-      )}
 
       <div className="p-6 space-y-5">
         {!showOtpStep && !isSignUp && (
@@ -220,26 +217,15 @@ function AuthFormContent() {
                   type="text"
                   maxLength={6}
                   value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
+                  onChange={(e) => {
+                    setOtpCode(e.target.value.replace(/[^0-9]/g, ''));
+                    if (formError) setFormError('');
+                  }}
                   placeholder="123456"
                   required
                   className="w-full text-center tracking-widest text-lg px-3.5 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all font-mono"
                 />
               </div>
-              <button
-                type="submit"
-                disabled={isLoading || otpCode.length !== 6}
-                className="w-full py-3 px-4 bg-navy text-white text-sm font-bold rounded-xl hover:bg-navy/90 transition-all shadow-md mt-2 disabled:opacity-50"
-              >
-                {isLoading ? 'Verifying...' : 'Verify & Complete Account'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowOtpStep(false)}
-                className="text-xs text-gray-500 hover:underline mt-2 block mx-auto"
-              >
-                ← Back to edit email
-              </button>
             </div>
           ) : (
             <>
@@ -341,25 +327,61 @@ function AuthFormContent() {
                   )}
                 </div>
               )}
+            </>
+          )}
 
+          {/* === Error Alert Section at the Bottom === */}
+          {(urlError || formError) && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-start gap-3 text-sm mt-4">
+              <svg className="w-5 h-5 shrink-0 mt-0.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <p className="font-semibold">{urlError === 'OAuthAccountNotLinked' ? 'Email already in use with a different provider.' : 'Authentication Error'}</p>
+                <p className="mt-0.5 text-red-600">{formError || 'Please check your information and try again.'}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Submit Buttons */}
+          {showOtpStep ? (
+            <>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || otpCode.length !== 6}
                 className="w-full py-3 px-4 bg-navy text-white text-sm font-bold rounded-xl hover:bg-navy/90 transition-all shadow-md mt-2 disabled:opacity-50"
               >
-                {isLoading ? 'Processing...' : (isSignUp ? 'Send OTP & Proceed' : 'Sign In')}
+                {isLoading ? 'Verifying...' : 'Verify & Complete Account'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowOtpStep(false)}
+                className="text-xs text-gray-500 hover:underline mt-2 block mx-auto"
+              >
+                ← Back to edit email
               </button>
             </>
+          ) : (
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 px-4 bg-navy text-white text-sm font-bold rounded-xl hover:bg-navy/90 transition-all shadow-md mt-4 disabled:opacity-50"
+            >
+              {isLoading ? 'Processing...' : (isSignUp ? 'Send OTP & Proceed' : 'Sign In')}
+            </button>
           )}
         </form>
 
         {!showOtpStep && (
-          <div className="text-center pt-2 border-t border-gray-100">
+          <div className="text-center pt-2 border-t border-gray-100 mt-4">
             <p className="text-xs text-gray-500">
               {isSignUp ? 'Already have an account?' : "Don't have an account yet?"}{' '}
               <button
                 type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  setFormError(''); // تنظيف الأخطاء عند التبديل بين التسجيل والدخول
+                }}
                 className="text-blue-600 font-bold hover:underline ml-1"
               >
                 {isSignUp ? 'Sign In' : 'Create New Account'}
