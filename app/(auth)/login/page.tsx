@@ -3,8 +3,10 @@
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+// MODIFIED: Added useRouter for client-side redirection
+import { useSearchParams, useRouter } from 'next/navigation';
+// MODIFIED: Added getSession to fetch the updated token after login
+import { signIn, getSession } from 'next-auth/react';
 
 // icon Google
 const GoogleIcon = () => (
@@ -27,6 +29,9 @@ function AuthFormContent() {
   const searchParams = useSearchParams();
   const urlError = searchParams.get('error');
 
+  // ADDED: Initialize router for redirection
+  const router = useRouter();
+
   const [isSignUp, setIsSignUp] = useState(false);
   const [showOtpStep, setShowOtpStep] = useState(false);
   const [otpCode, setOtpCode] = useState('');
@@ -44,7 +49,6 @@ function AuthFormContent() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // إخفاء الخطأ بمجرد أن يبدأ المستخدم في التعديل لتجربة مستخدم أفضل
     if (formError) setFormError('');
   };
 
@@ -76,7 +80,6 @@ function AuthFormContent() {
           
           const data = await res.json();
           if (!res.ok) {
-            // هنا سيتم عرض خطأ "الإيميل مستخدم مسبقاً" إذا كان قادماً من الـ API
             throw new Error(data.error || 'Failed to send verification email. This email might already be registered.');
           }
 
@@ -122,20 +125,28 @@ function AuthFormContent() {
     } else {
       // Sign In Logic
       try {
+        // MODIFIED: Disabled auto-redirect to handle role-based routing manually
         const result = await signIn('credentials', {
           email: formData.email,
           password: formData.password,
           redirect: false,
-          callbackUrl: '/portal',
         });
 
-        setIsLoading(false);
-
         if (result?.error) {
-          // رسالة خطأ واضحة في حالة خطأ الإيميل أو كلمة المرور
+          setIsLoading(false);
           setFormError('Incorrect email or password. Please try again.');
-        } else if (result?.url) {
-          window.location.href = result.url;
+        } else if (result?.ok) {
+          // ADDED: Get the fresh session to check the user's role
+          const session = await getSession();
+          
+          setIsLoading(false);
+          
+          // ADDED: Route the user based on their specific role
+          if (session?.user?.role === 'SUPER_ADMIN') {
+            router.push('/admin/dashboard');
+          } else {
+            router.push('/portal');
+          }
         }
       } catch (error) {
         setIsLoading(false);

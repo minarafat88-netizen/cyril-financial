@@ -88,22 +88,23 @@ export const authConfig: NextAuthConfig = {
       return session;
     },
     async jwt({ token, user }: any) {
-      if (user) {
-        token.id = user.id;
-        if (user.id) {
-          const [dbUser] = await db
-            .select()
-            .from(users)
-            .where(eq(users.id, user.id))
-            .limit(1);
+  if (user) {
+    token.id = user.id;
+    token.role = user.role;
+  } else if (token.id) {
+    // جلب أحدث دور من قاعدة البيانات مباشرة لتفادي مشاكل الـ Cache القديم
+    const [dbUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, token.id))
+      .limit(1);
 
-          if (dbUser) {
-            token.role = dbUser.role;
-          }
-        }
-      }
-      return token;
-    },
+    if (dbUser) {
+      token.role = dbUser.role;
+    }
+  }
+  return token;
+},
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

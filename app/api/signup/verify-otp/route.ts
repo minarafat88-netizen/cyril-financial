@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         email: email,
         phone: phone,
         password: hashedPassword,
-        role: 'user',
+        role: 'CLIENT',
       } as InsertUser);
 
       // Step 2: Delete the used verification code from the otps table

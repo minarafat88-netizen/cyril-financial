@@ -20,6 +20,13 @@ export default async function ServerPortalPage() {
     redirect('/login');
   }
 
+  // ADDED: Security Guard for SUPER_ADMIN
+  // If an admin accidentally accesses the /portal route (e.g., via Google OAuth redirect),
+  // immediately redirect them to the admin dashboard.
+  if (session.user.role === 'SUPER_ADMIN') {
+    redirect('/admin/dashboard');
+  }
+
   const userName = session.user.name || "Client";
   const userEmail = session.user.email; // Extracting email to query the database
 

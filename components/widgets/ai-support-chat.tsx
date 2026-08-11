@@ -39,7 +39,7 @@ export function AiSupportChat() {
 
     setTimeout(() => {
       const lowerInput = userMessage.toLowerCase();
-      let matchedResponse = "I can only assist with inquiries related to Cyril Financial Group's loan programs, rates, and services. Please check our loan options or contact our advisory team for specific requests.";
+      let matchedResponse = "I can only assist with  related to Cyril Financial Group's loan programs, rates, and services. Please check our loan options or contact our advisory team for specific requests.";
 
       for (const item of knowledgeBase) { 
         if (item.keywords.some(keyword => lowerInput.includes(keyword))) {

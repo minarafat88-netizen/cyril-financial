@@ -1,6 +1,3 @@
-// This script is used to grant SUPER_ADMIN role to a specific user in Firebase Authentication.
-// This script is used to grant SUPER_ADMIN role to a specific user in the Drizzle ORM 'users' table.
-
 import dotenv from "dotenv";
 import { db } from "../lib/db"; // عميل Drizzle ORM الخاص بك
 import { users } from "../lib/schema"; // مخطط جدول المستخدمين

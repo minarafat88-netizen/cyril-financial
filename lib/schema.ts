@@ -24,6 +24,7 @@ export const applications = pgTable('applications', {
   email: varchar('email', { length: 255 }).notNull(),
   phone: varchar('phone', { length: 50 }),
   loanType: varchar('loan_type', { length: 100 }),
+  amount: integer('amount'),
   status: varchar('status', { length: 50 }).default('SUBMITTED').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -141,10 +142,22 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
   used: boolean('used').default(false).notNull(),
 });
 
+export const inquiries = pgTable('inquiries', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
+  phone: varchar('phone', { length: 50 }),
+  subject: varchar('subject', { length: 255 }),
+  message: text('message').notNull(),
+  status: varchar('status', { length: 50 }).default('PENDING').notNull(), // PENDING, RESOLVED, etc.
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Inferred types for schema tables
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type UserRole = User['role'];
-
+export type Inquiry = typeof inquiries.$inferSelect;
+export type NewInquiry = typeof inquiries.$inferInsert;
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
 export type NewPasswordResetToken = typeof passwordResetTokens.$inferInsert;
