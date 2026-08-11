@@ -6,13 +6,13 @@ import { Landmark, Search, Plus, Edit3, Trash2, AlertCircle } from "lucide-react
 import Link from "next/link";
 import { deleteLoanProgram } from "./actions";
 
-// Type definition based on your Drizzle schema (loan_programs)
+// Type definition updated with 'rate'
 type LoanProgramRecord = {
   id: number;
   name: string;
   slug: string;
   loanType: string | null;
-  defaultInterestRate: number | null;
+  rate: string | number | null; // تم التعديل لاستخدام عمود rate الجديد
   sortOrder: number | null;
   createdAt: Date;
 };
@@ -56,10 +56,13 @@ export default function LoansClient({ initialData }: { initialData: LoanProgramR
                 ← Back
               </Button>
             </Link>
-            {/* TODO: Connect this button to the LoanTypeModal or a new page */}
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs flex items-center gap-2">
-              <Plus className="w-4 h-4" /> Add New Program
-            </Button>
+            
+            {/* Added link to Add New Program page */}
+            <Link href="/admin/loans/new">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs flex items-center gap-2 cursor-pointer">
+                <Plus className="w-4 h-4" /> Add New Program
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -118,23 +121,25 @@ export default function LoansClient({ initialData }: { initialData: LoanProgramR
                         {loan.loanType || "N/A"}
                       </td>
                       <td className="py-4 px-6 font-bold text-blue-600">
-                        {loan.defaultInterestRate ? `${loan.defaultInterestRate}%` : "Not Set"}
+                        {loan.rate ? `${loan.rate}%` : "Not Set"}
                       </td>
                       <td className="py-4 px-6 text-slate font-semibold">
-                        {loan.sortOrder}
+                        {loan.sortOrder ?? 0}
                       </td>
                       <td className="py-4 px-6 text-right space-x-2">
-                        {/* Edit Button */}
-                        <button 
-                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        {/* Edit Button linked to edit page */}
+                        <Link 
+                          href={`/admin/loans/${loan.id}/edit`}
+                          className="inline-block p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="Edit Program"
                         >
                           <Edit3 className="w-4 h-4" />
-                        </button>
+                        </Link>
+                        
                         {/* Delete Button */}
                         <button 
                           onClick={() => handleDelete(loan.id, loan.name)}
-                          className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                           title="Delete Program"
                           disabled={isPending}
                         >

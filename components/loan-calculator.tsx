@@ -6,16 +6,23 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 interface LoanCalculatorProps {
   loanType: string;
-  defaultInterestRate: number;
+  rate?: number | string | null;
   loanName: string;
 }
 
-export function LoanCalculator({ loanType, defaultInterestRate, loanName }: LoanCalculatorProps) {
+export function LoanCalculator({ loanType, rate, loanName }: LoanCalculatorProps) {
   const [homeValue, setHomeValue] = useState<number>(350000);
   const [downPaymentPercent, setDownPaymentPercent] = useState<number>(loanType === 'FHA' ? 3.5 : (loanType === 'VA' ? 0 : 10));
   const [loanTermYears, setLoanTermYears] = useState<number>(30);
   const [propertyTaxRate, setPropertyTaxRate] = useState<number>(1.2); // Default annual property tax rate
   const [homeInsurance, setHomeInsurance] = useState<number>(1500); // Default annual home insurance
+
+  // حساب معدل الفائدة بدقة (مع وضع قيمة افتراضية 5.75% في حال لم يتم تحديدها)
+  const interestRate = useMemo(() => {
+    if (rate === null || rate === undefined || rate === '') return 5.75;
+    const num = typeof rate === 'string' ? parseFloat(rate) : rate;
+    return isNaN(num) ? 5.75 : num;
+  }, [rate]);
 
   const {
     baseLoanAmount,
@@ -42,8 +49,8 @@ export function LoanCalculator({ loanType, defaultInterestRate, loanName }: Loan
       monthlyMIP = Math.round((baseLoanAmount * 0.0055) / 12); // ~0.55% annual MIP
     }
 
-    // Calculate monthly principal & interest (P&I)
-    const monthlyRate = defaultInterestRate / 100 / 12;
+    // Calculate monthly principal & interest (P&I) using 'interestRate'
+    const monthlyRate = interestRate / 100 / 12;
     const totalPayments = loanTermYears * 12;
     let monthlyPI = 0;
     if (totalLoanAmount > 0 && totalPayments > 0) {
@@ -91,7 +98,7 @@ export function LoanCalculator({ loanType, defaultInterestRate, loanName }: Loan
       amortizationData,
       totalMonthlyPayment: Math.round(totalMonthlyPayment),
     };
-  }, [homeValue, downPaymentPercent, loanTermYears, defaultInterestRate, loanType, propertyTaxRate, homeInsurance]);
+  }, [homeValue, downPaymentPercent, loanTermYears, interestRate, loanType, propertyTaxRate, homeInsurance]);
 
   return (
     <div className="bg-white p-8 rounded-3xl shadow-luxury border border-gray-100 space-y-5">
@@ -174,7 +181,7 @@ export function LoanCalculator({ loanType, defaultInterestRate, loanName }: Loan
           </div>
         </div>
         <p className="text-[10px] text-gray-400 text-center italic">
-          * Estimated at {defaultInterestRate}% interest rate. For illustrative purposes only.
+          * Estimated at {interestRate}% interest rate. For illustrative purposes only.
         </p>
 
         {/* New chart section */}

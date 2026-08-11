@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, jsonb, timestamp, integer, real, boolean, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, varchar, jsonb, timestamp, integer, real, boolean, pgEnum,numeric } from 'drizzle-orm/pg-core';
 import { primaryKey } from 'drizzle-orm/pg-core';
 import type { AdapterAccount } from '@auth/core/adapters';
 
@@ -8,6 +8,7 @@ export const loanPrograms = pgTable('loan_programs', {
   slug: varchar('slug', { length: 255 }).notNull(),
   subtitle: text('subtitle'),
   description: text('description'),
+  rate: numeric('rate', { precision: 5, scale: 3 }),
   loanType: varchar('loan_type', { length: 50 }),
   defaultInterestRate: real('default_interest_rate'),
   icon: varchar('icon', { length: 100 }),
