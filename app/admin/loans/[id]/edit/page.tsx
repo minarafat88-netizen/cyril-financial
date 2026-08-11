@@ -2,12 +2,27 @@ import { db } from "@/lib/db";
 import { loanPrograms } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import EditLoanForm from "@/app/admin/loans/[id]/edit/edit-form";
+import EditLoanForm from "./edit-form";
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const [loan] = await db.select().from(loanPrograms).where(eq(loanPrograms.id, parseInt(params.id)));
+// لاحظ هنا: params أصبحت Promise
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  // 1. يجب عمل await لـ params أولاً
+  const { id } = await params;
   
-  if (!loan) notFound();
+  // 2. تحويل الـ id إلى رقم
+  const loanId = parseInt(id);
 
-  return <EditLoanForm initialData={loan} /> as React.ReactNode;
+  // 3. التحقق من أن الـ id رقم صالح لتجنب خطأ NaN
+  if (isNaN(loanId)) {
+    notFound();
+  }
+
+  // 4. الاستعلام عن القرض
+  const [loan] = await db.select().from(loanPrograms).where(eq(loanPrograms.id, loanId));
+
+  if (!loan) {
+    notFound();
+  }
+
+  return <EditLoanForm initialData={loan} />;
 }

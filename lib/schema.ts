@@ -42,12 +42,14 @@ export const activities = pgTable('activities', {
 
 // Leads table schema
 export const leads = pgTable('leads', {
-  id: serial('id').primaryKey(),
+id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull(),
   phone: varchar('phone', { length: 50 }),
+  loanType: varchar('loan_type', { length: 100 }),
   message: text('message'),
   source: varchar('source', { length: 100 }),
+  status: varchar('status', { length: 50 }).default('NEW').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Landmark, Plus, Trash2, ArrowLeft, Save } from "lucide-react";
+import { Landmark, Plus, Trash2, ArrowLeft, Save, Upload, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { updateLoanProgram } from "../../actions";
 
@@ -12,7 +12,7 @@ export default function EditLoanForm({ initialData }: { initialData: any }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
 
-  // Form State initialized with initialData
+  // Form State (مع الاحتفاظ بالـ slug في الخلفية ليتم إرساله للداتابيز تلقائياً)
   const [formData, setFormData] = useState({
     name: initialData.name || "",
     slug: initialData.slug || "",
@@ -20,7 +20,7 @@ export default function EditLoanForm({ initialData }: { initialData: any }) {
     description: initialData.description || "",
     loanType: initialData.loanType || "",
     rate: initialData.rate ? initialData.rate.toString() : "",
-    icon: initialData.icon || "",
+    icon: initialData.icon || "Home",
     imageUrl: initialData.imageUrl || "",
     sortOrder: initialData.sortOrder !== null && initialData.sortOrder !== undefined ? initialData.sortOrder.toString() : "0",
   });
@@ -32,6 +32,7 @@ export default function EditLoanForm({ initialData }: { initialData: any }) {
       : [""]
   );
 
+  // توليد الـ slug تلقائياً في الخلفية عند تغيير الاسم
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
     const autoSlug = newName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
@@ -51,6 +52,14 @@ export default function EditLoanForm({ initialData }: { initialData: any }) {
   const removeBenefitField = (index: number) => {
     const newBenefits = benefits.filter((_, i) => i !== index);
     setBenefits(newBenefits);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const simulatedPath = `/images/loans/${file.name}`;
+      setFormData({ ...formData, imageUrl: simulatedPath });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,7 +96,7 @@ export default function EditLoanForm({ initialData }: { initialData: any }) {
           </div>
 
           <Link href="/admin/loans">
-            <Button variant="outline" className="border-gray-600 text-navy bg-white hover:bg-gray-100 text-xs flex items-center gap-2">
+            <Button variant="outline" className="border-gray-600 text-navy bg-white hover:bg-gray-100 text-xs flex items-center gap-2 cursor-pointer">
               <ArrowLeft className="w-4 h-4" /> Cancel
             </Button>
           </Link>
@@ -106,27 +115,17 @@ export default function EditLoanForm({ initialData }: { initialData: any }) {
             <div className="lg:col-span-2 space-y-6 bg-white p-8 rounded-3xl shadow-luxury border border-gray-100">
               <h2 className="text-xl font-bold text-navy border-b border-gray-100 pb-4">General Information</h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Program Name *</label>
-                  <input 
-                    required 
-                    type="text" 
-                    value={formData.name} 
-                    onChange={handleNameChange}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">URL Slug *</label>
-                  <input 
-                    required 
-                    type="text" 
-                    value={formData.slug} 
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-500 bg-gray-100 focus:outline-none"
-                  />
-                </div>
+              {/* Program Name (تم جعل الحقل يأخذ العرض كاملًا بعد إزالة الـ Slug) */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Program Name *</label>
+                <input 
+                  required 
+                  type="text" 
+                  value={formData.name} 
+                  onChange={handleNameChange}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500"
+                  placeholder="e.g., 30-Year Fixed FHA"
+                />
               </div>
 
               <div>
@@ -136,6 +135,7 @@ export default function EditLoanForm({ initialData }: { initialData: any }) {
                   value={formData.subtitle} 
                   onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500"
+                  placeholder="A short catchy phrase for the program card"
                 />
               </div>
 
@@ -146,6 +146,7 @@ export default function EditLoanForm({ initialData }: { initialData: any }) {
                   value={formData.description} 
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500"
+                  placeholder="Explain the full details and requirements..."
                 />
               </div>
 
@@ -168,6 +169,7 @@ export default function EditLoanForm({ initialData }: { initialData: any }) {
                         value={benefit} 
                         onChange={(e) => handleBenefitChange(index, e.target.value)}
                         className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500"
+                        placeholder="e.g., Low down payment options available"
                       />
                       {benefits.length > 1 && (
                         <button type="button" onClick={() => removeBenefitField(index)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
@@ -223,27 +225,53 @@ export default function EditLoanForm({ initialData }: { initialData: any }) {
                 </div>
               </div>
 
+              {/* Media & Icons Section */}
               <div className="bg-white p-6 rounded-3xl shadow-luxury border border-gray-100 space-y-4">
-                <h2 className="text-lg font-bold text-navy border-b border-gray-100 pb-3">Media</h2>
+                <h2 className="text-lg font-bold text-navy border-b border-gray-100 pb-3">Media & Icons</h2>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Icon Name (Lucide)</label>
-                  <input 
-                    type="text" 
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Program Icon</label>
+                  <select 
                     value={formData.icon} 
                     onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500"
-                  />
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500 cursor-pointer"
+                  >
+                    <option value="Home">Home (House)</option>
+                    <option value="Building">Building (Commercial)</option>
+                    <option value="Landmark">Landmark (Government/FHA)</option>
+                    <option value="Shield">Shield (Security)</option>
+                    <option value="Percent">Percent (Rate Special)</option>
+                    <option value="DollarSign">DollarSign (Jumbo/Cash)</option>
+                    <option value="CreditCard">CreditCard</option>
+                  </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Cover Image URL</label>
-                  <input 
-                    type="text" 
-                    value={formData.imageUrl} 
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500"
-                  />
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Cover Image File</label>
+                  <div className="space-y-3">
+                    {formData.imageUrl && (
+                      <div className="flex items-center gap-3 p-2 bg-gray-50 rounded-xl border border-gray-200">
+                        <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                          <ImageIcon className="w-5 h-5" />
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-xs font-bold text-navy truncate">Current Image</p>
+                          <p className="text-[11px] text-gray-500 truncate">{formData.imageUrl}</p>
+                        </div>
+                      </div>
+                    )}
+                    <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50/50 transition-all">
+                      <Upload className="w-6 h-6 text-blue-600 mb-1" />
+                      <span className="text-xs font-bold text-navy">Click to upload new image</span>
+                      <span className="text-[10px] text-gray-400 mt-0.5">PNG, JPG, WEBP up to 5MB</span>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
