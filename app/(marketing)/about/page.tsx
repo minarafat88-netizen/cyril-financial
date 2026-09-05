@@ -28,7 +28,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Visual Brand Showcase Section (تخيل صورة تعبيرية مبهرة للشركة) */}
+      {/* Visual Brand Showcase Section */}
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-blue-900 to-slate-900 p-8 md:p-16 text-white shadow-2xl flex flex-col md:flex-row items-center gap-10">
@@ -46,7 +46,7 @@ export default function AboutPage() {
               </p>
             </div>
 
-            {/* عنصر بصري تجريدي يرمز لقوة وحيوية الشركة */}
+            {/* Abstract visual element symbolizing the company's strength and vitality */}
             <div className="relative z-10 w-full md:w-80 h-64 bg-gradient-to-tr from-blue-600/30 to-indigo-500/30 backdrop-blur-xl border border-white/20 rounded-2xl p-6 flex flex-col justify-between shadow-inner">
               <div className="flex justify-between items-center">
                 <span className="text-xs font-semibold text-blue-300">CFG Global Standard</span>

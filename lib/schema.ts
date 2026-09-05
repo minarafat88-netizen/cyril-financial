@@ -5,7 +5,7 @@ import type { AdapterAccount } from '@auth/core/adapters';
 export const loanPrograms = pgTable('loan_programs', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
-  slug: varchar('slug', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 255 }).notNull().unique(),
   subtitle: text('subtitle'),
   description: text('description'),
   rate: numeric('rate', { precision: 5, scale: 3 }),

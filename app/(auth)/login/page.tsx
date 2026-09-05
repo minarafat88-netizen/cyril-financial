@@ -391,7 +391,7 @@ function AuthFormContent() {
                 type="button"
                 onClick={() => {
                   setIsSignUp(!isSignUp);
-                  setFormError(''); // تنظيف الأخطاء عند التبديل بين التسجيل والدخول
+                  setFormError(''); // Clear errors when switching between sign-up and sign-in
                 }}
                 className="text-blue-600 font-bold hover:underline ml-1"
               >

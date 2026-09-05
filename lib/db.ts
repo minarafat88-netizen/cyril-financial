@@ -2,6 +2,6 @@ import { sql } from '@vercel/postgres';
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import * as schema from './schema';
 
-// استخدم sql من @vercel/postgres لإنشاء اتصال
-// ثم قم بتمريره إلى Drizzle ORM
+// Use sql from @vercel/postgres to create a connection
+// Then pass it to Drizzle ORM
 export const db = drizzle(sql, { schema });

@@ -11,7 +11,7 @@ interface PageProps {
 export default function BlogPostDetailPage({ params }: PageProps) {
   const { slug } = params;
 
-  // محاكاة بيانات المقال بناءً على الـ slug أو الـ id
+  // Mock article data based on the slug or id
   const article = {
     title: slug === "2" 
       ? "Navigating Bank Statement Qualifying for Self-Employed Entrepreneurs" 

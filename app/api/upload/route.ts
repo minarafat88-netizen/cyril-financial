@@ -14,13 +14,13 @@ const ALLOWED_CONTENT_TYPES = new Set([
 
 export async function POST(request: Request) {
   try {
-    // 1. استخدام getToken بدلاً من getServerSession المحذوفة
+    // 1. Use getToken instead of the deprecated getServerSession
     const token = await getToken({
       req: request as any,
       secret: process.env.NEXTAUTH_SECRET,
     });
 
-    // 2. جلب الصلاحية مباشرة من التوكن
+    // 2. Get the role directly from the token
     const role = token?.role;
 
     if (!token || (role !== "SUPER_ADMIN" && role !== "LOAN_OFFICER")) {

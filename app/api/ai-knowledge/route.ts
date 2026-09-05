@@ -6,7 +6,7 @@ import { aiKnowledge } from "@/lib/schema";
 
 export async function GET() {
   try {
-    // جلب قاعدة المعرفة من Vercel Postgres باستخدام Drizzle
+    // Fetch the knowledge base from Vercel Postgres using Drizzle
     const knowledgeData = await db.select().from(aiKnowledge);
 
     return NextResponse.json({ success: true, data: knowledgeData });

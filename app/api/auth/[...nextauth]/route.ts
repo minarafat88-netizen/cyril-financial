@@ -111,9 +111,9 @@ export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-// استخراج كائن الـ handlers بالطريقة الصحيحة للإصدار الخامس
+// Extract the handlers object correctly for v5
 const { handlers } = NextAuth(authOptions as any);
 
-// تصدير معالجات GET و POST من داخل الكائن
+// Export GET and POST handlers from within the object
 export const GET = handlers.GET;
 export const POST = handlers.POST;

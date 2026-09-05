@@ -26,6 +26,7 @@ export default function AdjustableRateLoanPage() {
   // نسب الفائدة الابتدائية لبرامج ARM المختلفة (أقل عادة من Fixed-Rate)
   const getInitialRate = () => {
     switch(armStructure) {
+      case "3/1": return 5.125;
       case "5/1": return 5.375;
       case "7/1": return 5.625;
       case "10/1": return 5.875;
@@ -76,7 +77,7 @@ export default function AdjustableRateLoanPage() {
               Adjustable-Rate Mortgages (ARM)
             </h1>
             <p className="text-gray-300 text-lg leading-relaxed max-w-2xl">
-              Enjoy lower initial monthly payments for the first 5, 7, or 10 years, starting as low as {initialInterestRate}%, followed by periodic interest rate adjustments aligned with market indexes.
+              Enjoy lower initial monthly payments for the first 3, 5, 7, or 10 years, starting as low as {initialInterestRate}%, followed by periodic interest rate adjustments aligned with market indexes.
             </p>
           </div>
 
@@ -88,7 +89,7 @@ export default function AdjustableRateLoanPage() {
               <div className="space-y-4">
                 <h3 className="text-2xl font-bold text-navy">Program Overview & Detailed Structure</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  An Adjustable-Rate Mortgage (ARM) offers a fixed interest rate for an initial introductory period (such as 5, 7, or 10 years). After this initial period expires, the interest rate resets periodically (typically once per year or every 6 months) based on a benchmark market index (e.g., SOFR) plus a predetermined margin set by the lender.
+                  An Adjustable-Rate Mortgage (ARM) offers a fixed interest rate for an initial introductory period (such as 3, 5, 7, or 10 years). After this initial period expires, the interest rate resets periodically (typically once per year or every 6 months) based on a benchmark market index (e.g., SOFR) plus a predetermined margin set by the lender.
                 </p>
                 <p className="text-gray-600 text-sm leading-relaxed">
                   ARMs are highly ideal for homebuyers who plan to move, refinance, or pay off their mortgage before the initial fixed-rate term ends, allowing them to capitalize on significantly lower starting interest rates compared to traditional fixed-rate loans.
@@ -118,8 +119,8 @@ export default function AdjustableRateLoanPage() {
                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Key Highlights & Advantages</h4>
                 <div className="grid grid-cols-1 gap-3">
                   {[
-                    "Lower introductory interest rates & smaller initial monthly payments",
-                    "Popular options: 5/1 ARM, 7/1 ARM, and 10/1 ARM programs",
+                    "Down Payment as low as 3% no cap no maximum.",
+                    "Popular options: 3/1 ARM, 5/1 ARM, 7/1 ARM, and 10/1 ARM programs",
                     "Strict built-in rate caps to protect against runaway market increases",
                     "Opportunity to benefit automatically if broader market interest rates drop",
                     "Ideal strategic fit for buyers staying in the home for under 10 years"
@@ -138,10 +139,12 @@ export default function AdjustableRateLoanPage() {
                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Eligibility & Qualification Requirements</h4>
                 <ul className="list-disc list-inside text-sm text-gray-600 space-y-2">
                   <li><strong className="text-navy">Credit Score:</strong> Minimum FICO score starting at 620–640+ (680+ recommended for best margins).</li>
-                  <li><strong className="text-navy">Qualifying DTI Ratio:</strong> Maximum Debt-to-Income ratio around 43%–45% (underwritten at the maximum potential adjusted rate).</li>
+                  <li><strong className="text-navy">Qualifying DTI Ratio:</strong> Maximum debt to income ratio based on DU/ LPA approval.</li>
                   <li><strong className="text-navy">Down Payment:</strong> Minimum down payment starting at 3% to 5% for conventional ARMs.</li>
                   <li><strong className="text-navy">Financial Reserves:</strong> Demonstrated liquid reserves (typically 2 to 6 months of mortgage payments) to buffer against future adjustment cycles.</li>
                   <li><strong className="text-navy">Income Verification:</strong> Full standard documentation (W-2s, recent pay stubs, 2 years tax returns).</li>
+                  <li><strong className="text-navy">Mortgage Insurance:</strong> Are available with down payment lower than 20%.</li>
+
                 </ul>
               </div>
 
@@ -166,6 +169,7 @@ export default function AdjustableRateLoanPage() {
                       onChange={(e) => setArmStructure(e.target.value)}
                       className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-navy font-bold text-navy"
                     >
+                      <option value="3/1">3/1 ARM (3 Yrs Fixed @ 5.125%)</option>
                       <option value="5/1">5/1 ARM (5 Yrs Fixed @ 5.375%)</option>
                       <option value="7/1">7/1 ARM (7 Yrs Fixed @ 5.625%)</option>
                       <option value="10/1">10/1 ARM (10 Yrs Fixed @ 5.875%)</option>

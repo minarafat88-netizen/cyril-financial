@@ -119,9 +119,10 @@ export default function FHALoanPage() {
                   {[
                     "Low down payment requirement starting at just 3.5%",
                     "More lenient credit score qualifications (580+ for 3.5% down)",
-                    "Higher debt-to-income (DTI) allowance compared to conventional loans",
+                    "Higher debt-to-income (DTI) allowance compared to conventional loans 45%- 55% for strong profiles and with AUS approval",
                     "Down payment funds can be 100% gifted from family or qualified non-profits",
-                    "Assumable mortgage option allowing future buyers to take over your interest rate"
+                    "Lower FICO score as low as 500 is available with motivated down payment options",
+                    "Manual underwriting is available with compensating factors"
                   ].map((benefit, idx) => (
                     <div key={idx} className="flex items-center gap-3">
                       <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">

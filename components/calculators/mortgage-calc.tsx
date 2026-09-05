@@ -179,7 +179,7 @@ export function MortgageCalculator({ loanType, defaultHomePrice = 500000 }: Mort
           )}
           
           <button className="w-full bg-silver-button text-navy font-bold py-3 rounded-xl text-sm shadow-md hover:brightness-105 active:scale-95 transition-all mt-8">
-            Get Exact Rate
+            Get Estimated payment
           </button>
         </div>
       </div>

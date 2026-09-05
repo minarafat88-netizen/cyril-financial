@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   description:
     "Institutional private banking standards and boutique white-glove mortgage advisory for California homebuyers, high-net-worth clients, and real estate investors.",
   metadataBase: new URL("https://cyrilfinancial.com"),
+  icons: {
+    icon: "/favicon.png",
+  },
   applicationName: "Cyril Financial Group",
   authors: [{ name: "Cyril Financial Group" }],
   creator: "Cyril Financial Group",

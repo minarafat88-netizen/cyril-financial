@@ -31,10 +31,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // جلب بيانات المستخدم الحالي من الـ API الخاص بالسيرفر
+    // Fetch current user data from the server's API
     async function checkUserSession() {
       try {
-        const res = await fetch('/api/auth/me'); // تأكد من توفر هذا المسار أو قم بتعديله حسب نظام المصادقة لديك
+        const res = await fetch('/api/auth/me'); // Make sure this path is available or modify it according to your authentication system
         if (res.ok) {
           const data = await res.json();
           setUser(data.user || data);

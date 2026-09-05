@@ -16,7 +16,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
     }
 
-    // جلب العملاء المحتملين (leads) من قاعدة البيانات وترتيبهم تنازلياً حسب تاريخ الإنشاء باستخدام Drizzle
+    // Fetch leads from the database and order them descending by creation date using Drizzle
     const allLeads = await db.select().from(leads).orderBy(desc(leads.createdAt));
 
     return NextResponse.json({ success: true, count: allLeads.length, data: allLeads });

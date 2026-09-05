@@ -21,7 +21,7 @@ interface LoanProgram {
   loanType: string;
   details?: { title: string; content: string }[];
   rate: number | string | null; 
-  imageUrl?: string; // <-- تمت إضافته هنا لمنع الخطأ في السطور 83 و 86
+  imageUrl?: string; 
 }
 
 // جلب بيانات القرض من قاعدة البيانات باستخدام slug
@@ -40,13 +40,15 @@ async function getLoanProgram(slug: string): Promise<LoanProgram | null> {
   }
 }
 
-// تصحيح generateMetadata لتقبل params ككائن عادي
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: { slug: string };
-}): Promise<Metadata> {
-  const data = await getLoanProgram(params.slug);
+interface Props {
+  params: Promise<{ slug: string }>;
+}
+
+// تصحيح generateMetadata لتنتظر الـ params كـ Promise
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const resolvedParams = await params;
+  const data = await getLoanProgram(resolvedParams.slug);
+  
   return {
     title: data ? `${data.name} | Cyril Financial Group` : 'Loan Program Details | Cyril Financial Group',
     description: data ? data.subtitle : 'Detailed information about our loan programs.',
@@ -54,12 +56,10 @@ export async function generateMetadata({
   };
 }
 
-export default async function LoanProgramPage({ 
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const data = await getLoanProgram(params.slug);
+export default async function LoanProgramPage({ params }: Props) {
+  const resolvedParams = await params;
+  const data = await getLoanProgram(resolvedParams.slug);
+  
   if (!data) {
     notFound(); // توجيه لصفحة 404 إذا كان الرابط غير صحيح
   }
@@ -119,7 +119,7 @@ export default async function LoanProgramPage({
               </div>
             </div>
 
-            {/* Right Column with Calculator - Updated to pass 'rate' */}
+            {/* Right Column with Calculator */}
             <div className="lg:col-span-5 space-y-8">
               <LoanCalculator 
                 loanType={data.loanType}

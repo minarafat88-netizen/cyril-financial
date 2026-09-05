@@ -37,7 +37,7 @@ export default function ContactPage() {
       <section className="py-20 px-6">
         <div className="max-w-5xl mx-auto space-y-8">
           
-          {/* كارت القيادة التنفيذية مع شعار الشركة الرسمي */}
+          {/* Executive leadership card with the official company logo */}
           <div className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-slate-200/80 flex items-center gap-6">
             <div className="w-16 h-16 relative rounded-2xl overflow-hidden shrink-0 border border-slate-100 bg-navy flex items-center justify-center shadow-sm">
               <Image
@@ -62,16 +62,15 @@ export default function ContactPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            {/* بطاقة معلومات التواصل المباشر */}
+            {/* Direct contact information card */}
             <div className="lg:col-span-2 bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-slate-200/80 space-y-8">
               <div>
                 <h2 className="text-2xl font-bold text-slate-900 mb-2">Executive Contact Channels</h2>
                 <p className="text-slate-500 text-sm">Direct lines to our operations and advisory teams.</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* البريد الإلكتروني */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">                
+                {/* Email */}
                 <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
                   <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
                     <Mail className="w-5 h-5" />
@@ -84,7 +83,7 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* الموقع الإلكتروني */}
+                {/* Official Website */}
                 <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
                   <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
                     <Globe className="w-5 h-5" />
@@ -99,7 +98,7 @@ export default function ContactPage() {
 
               </div>
 
-              {/* أرقام الهواتف التفصيلية */}
+              {/* Detailed phone numbers */}
               <div className="space-y-4 pt-4 border-t border-slate-100">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0">
@@ -130,7 +129,7 @@ export default function ContactPage() {
 
             </div>
 
-            {/* بطاقة العنوان المكتبي */}
+            {/* Office address card */}
             <div className="bg-slate-900 text-white p-8 md:p-10 rounded-3xl shadow-lg flex flex-col justify-between space-y-6">
               <div className="space-y-6">
                 <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center">

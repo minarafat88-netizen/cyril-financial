@@ -55,9 +55,8 @@ export function Footer() {
               Loan Programs
             </h4>
             <ul className="space-y-3 text-xs text-silver-dark">
-              {/* تم تعديل الرابط هنا ليوجه إلى الصفحة الرئيسية (/) */}
               <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
-              <li><Link href="/loans/refinance" className="hover:text-white transition-colors">Refinance & Cash-Out</Link></li>
+              <li><Link href="/refinance" className="hover:text-white transition-colors">Refinance & Cash-Out</Link></li>
               <li><Link href="/loans/jumbo" className="hover:text-white transition-colors">Jumbo Loans</Link></li>
               <li><Link href="/loans/fha" className="hover:text-white transition-colors">FHA Loans</Link></li>
               <li><Link href="/loans/va" className="hover:text-white transition-colors">VA Loans</Link></li>

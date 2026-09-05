@@ -16,10 +16,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
     }
 
-    // جلب قائمة المستخدمين من قاعدة بيانات PostgreSQL باستخدام Drizzle وترتيبها تنازلياً حسب تاريخ الإنشاء
+    // Fetch the list of users from the PostgreSQL database using Drizzle and order them descending by creation date
     const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
 
-    // تنسيق البيانات لضمان توافق الـ id (إذا كان رقمياً يتم تحويله لنص ليتطابق مع واجهة الـ Frontend)
+    // Format the data to ensure id compatibility (if it's a number, convert it to a string to match the Frontend interface)
     const formattedUsers = allUsers.map((user) => ({
       ...user,
       id: String(user.id),

@@ -4,20 +4,20 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import EditLoanForm from "./edit-form";
 
-// لاحظ هنا: params أصبحت Promise
+// Note here: params is now a Promise
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  // 1. يجب عمل await لـ params أولاً
+  // 1. Must await params first
   const { id } = await params;
   
-  // 2. تحويل الـ id إلى رقم
+  // 2. Convert the id to a number
   const loanId = parseInt(id);
 
-  // 3. التحقق من أن الـ id رقم صالح لتجنب خطأ NaN
+  // 3. Check if the id is a valid number to avoid NaN error
   if (isNaN(loanId)) {
     notFound();
   }
 
-  // 4. الاستعلام عن القرض
+  // 4. Query for the loan
   const [loan] = await db.select().from(loanPrograms).where(eq(loanPrograms.id, loanId));
 
   if (!loan) {

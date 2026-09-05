@@ -22,25 +22,26 @@ function setSecurityHeaders(response: NextResponse) {
 }
 
 export async function middleware(request: NextRequest) {
-  // This now checks for the session cookie set by Auth.js (NextAuth.js)
-  // The cookie name might be `__Secure-authjs.session-token` or `authjs.session-token`
-  // depending on your environment (production/development).
-  // We check for both for robustness.
-  const sessionToken = request.cookies.get('__Secure-authjs.session-token')?.value || request.cookies.get('authjs.session-token')?.value;
+  // Checks for the session cookie set by Auth.js (NextAuth.js v5)
+  const sessionToken = 
+    request.cookies.get('__Secure-authjs.session-token')?.value || 
+    request.cookies.get('authjs.session-token')?.value;
 
-  const isProtectedPath = request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/portal');
+  const isProtectedPath = 
+    request.nextUrl.pathname.startsWith('/admin') || 
+    request.nextUrl.pathname.startsWith('/portal');
 
   if (isProtectedPath && !sessionToken) {
-    // Redirect unauthenticated users to the login page preserving your exact error flow
+    // Redirect unauthenticated users to the login page
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('error', 'Authentication required. Please log in.');
     const redirectResponse = NextResponse.redirect(loginUrl);
     return setSecurityHeaders(redirectResponse);
   }
 
-  // For all other requests, continue and apply security headers
+  // For all other requests, continue AND apply security headers correctly
   const response = NextResponse.next();
-  return response;
+  return setSecurityHeaders(response);
 }
 
 export const config = {

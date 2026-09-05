@@ -5,20 +5,23 @@ import { Building2, ShieldCheck, MapPin, ExternalLink, FileCheck } from "lucide-
 
 export const metadata: Metadata = {
   title: "State Licensing & Disclosures | Cyril Financial Group",
-  description: "View state-by-state licensing information, NMLS numbers, and regulatory disclosures for Cyril Financial Group.",
+  description: "View state-by-state licensing information, NMLS numbers, and regulatory disclosures for Cyril Financial Group, Inc.",
 };
 
 export default function StateLicensingPage() {
-  const nmlsNumber = "NMLS #1234567";
+  const nmlsId = "1996548";
 
-  // قائمة تجريبية للولايات التي تعمل بها الشركة (يمكنك تعديلها لاحقاً أو ربطها بالداتابيز)
   const licensedStates = [
-    { state: "New York", licenseType: "Mortgage Banker License", licenseNumber: "NY-MB-987654" },
-    { state: "California", type: "DFPI Residential Mortgage Lending Act", licenseNumber: "CA-DFPI-456789" },
-    { state: "Florida", licenseType: "Mortgage Lender License", licenseNumber: "FL-MLD-123789" },
-    { state: "Texas", type: "SML Mortgage Banker Registration", licenseNumber: "TX-SML-654321" },
-    { state: "Illinois", licenseType: "Residential Mortgage License", licenseNumber: "IL-MBR-321654" },
-    { state: "New Jersey", type: "Department of Banking & Insurance", licenseNumber: "NJ-RMLA-789123" },
+    {
+      state: "California",
+      licenseType: "Licensed by the California Department of Financial Protection and Innovation (DFPI) under the California Financing Law (CFL)",
+      licenseNumber: `See NMLS #${nmlsId}`,
+    },
+    {
+      state: "California",
+      licenseType: "Real estate brokerage activities conducted under the California Department of Real Estate (DRE)",
+      licenseNumber: "01856286",
+    },
   ];
 
   return (
@@ -35,10 +38,47 @@ export default function StateLicensingPage() {
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-navy tracking-tight">State Licensing & Disclosures</h1>
             <p className="text-sm text-gray-500 max-w-xl mx-auto">
-              Cyril Financial Group maintains strict adherence to state and federal lending regulations. View our official licensing credentials below.
+              Cyril Financial Group, Inc. maintains strict adherence to state and federal lending regulations. View our official licensing credentials below.
             </p>
-            <div className="inline-block px-4 py-2 bg-navy text-white rounded-xl text-xs font-bold tracking-widest shadow-sm">
-              Corporate NMLS ID: <span className="text-emerald font-mono">1234567</span>
+
+            <a
+              href={`https://nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/${nmlsId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-4 py-2 bg-navy text-white rounded-xl text-xs font-bold tracking-widest shadow-sm hover:bg-navy-dark transition-colors"
+              aria-label={`Verify NMLS ID ${nmlsId} on NMLS Consumer Access`}
+            >
+              Corporate NMLS ID: <span className="text-emerald font-mono">{nmlsId}</span>
+            </a>
+          </div>
+
+          {/* Proposal 1: Structured Compliance Card */}
+          <div className="bg-white p-8 rounded-3xl shadow-luxury border border-gray-100 space-y-6">
+            <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm tracking-wider">
+                CF
+              </div>
+              <div>
+                <h4 className="font-bold text-navy text-sm">Cyril Financial Group, Inc.</h4>
+                <p className="text-xs text-gray-500">Official Regulatory & Licensing Disclosure</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-1">
+                <span className="text-gray-400 font-semibold uppercase tracking-wider block text-[10px]">DFPI License</span>
+                <p className="font-medium text-gray-700">California Department of Financial Protection and Innovation under CFL.</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-1">
+                <span className="text-gray-400 font-semibold uppercase tracking-wider block text-[10px]">DRE License</span>
+                <p className="font-mono font-bold text-blue-600 text-sm">#01856286</p>
+                <p className="text-[11px] text-gray-500">Department of Real Estate Brokerage</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-1">
+                <span className="text-gray-400 font-semibold uppercase tracking-wider block text-[10px]">NMLS Registry</span>
+                <p className="font-mono font-bold text-emerald text-sm">#{nmlsId}</p>
+                <p className="text-[11px] text-gray-500">Equal Housing Lender</p>
+              </div>
             </div>
           </div>
 
@@ -53,8 +93,8 @@ export default function StateLicensingPage() {
               </p>
             </div>
             <a 
-              href="https://www.nmlsconsumeraccess.org" 
-              target="_blank" 
+              href={`https://nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/${nmlsId}`}
+              target="_blank"
               rel="noopener noreferrer"
               className="bg-navy hover:bg-navy-dark text-white font-bold px-6 py-3 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-2 shrink-0 cursor-pointer"
             >
@@ -87,8 +127,24 @@ export default function StateLicensingPage() {
                         <span className="w-2 h-2 rounded-full bg-emerald"></span>
                         {item.state}
                       </td>
-                      <td className="py-4 px-6 text-gray-600">{item.licenseType || item.type}</td>
-                      <td className="py-4 px-6 font-mono font-bold text-blue-600">{item.licenseNumber}</td>
+                      <td className="py-4 px-6 text-gray-600">{item.licenseType}</td>
+                      <td className="py-4 px-6 font-mono font-bold text-blue-600">
+                        {item.licenseNumber.startsWith("See NMLS") ? (
+                          <>
+                            See NMLS #{" "}
+                            <a
+                              href={`https://nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/${nmlsId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="underline hover:text-blue-800"
+                            >
+                              {nmlsId}
+                            </a>
+                          </>
+                        ) : ( 
+                          item.licenseNumber 
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

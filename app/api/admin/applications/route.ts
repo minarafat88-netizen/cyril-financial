@@ -15,7 +15,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: "Unauthorized access" }, { status: 401 });
     }
 
-    // جلب البيانات من Vercel Postgres باستخدام Drizzle ORM
+    // Fetch data from Vercel Postgres using Drizzle ORM
     const allApplications = await db
       .select()
       .from(applicationsTable)
