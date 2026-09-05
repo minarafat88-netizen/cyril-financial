@@ -1,17 +1,82 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { Phone, Mail, X, Headphones, ArrowRight } from "lucide-react";
 
 export function FloatingContact() {
   const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  
+  const dragRef = useRef({
+    startX: 0,
+    startY: 0,
+    initialX: 0,
+    initialY: 0,
+    hasMoved: false,
+  });
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    // منع التفاعل إذا كان الضغط على زر الإغلاق أو داخل النافذة المنبثقة لمنع التعارض
+    if ((e.target as HTMLElement).closest(".no-drag")) return;
+
+    setIsDragging(true);
+    dragRef.current.startX = e.clientX;
+    dragRef.current.startY = e.clientY;
+    dragRef.current.initialX = position.x;
+    dragRef.current.initialY = position.y;
+    dragRef.current.hasMoved = false;
+
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+
+    // إذا تحرك المؤشر أكثر من 5 بكسل، نعتبرها حركة سحب وليس ضغطاً عادياً
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      dragRef.current.hasMoved = true;
+    }
+
+    setPosition({
+      x: dragRef.current.initialX + dx,
+      y: dragRef.current.initialY + dy,
+    });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {}
+  };
+
+  const handleButtonClick = () => {
+    // فتح أو إغلاق النافذة فقط إذا لم يتم سحب العنصر
+    if (!dragRef.current.hasMoved) {
+      setIsOpen(!isOpen);
+    }
+  };
 
   return (
-    <div className="fixed bottom-6 left-6 z-50">
+    <div
+      style={{
+        transform: `translate(${position.x}px, ${position.y}px)`,
+        touchAction: "none",
+      }}
+      className="fixed bottom-6 left-6 z-50 select-none cursor-grab active:cursor-grabbing"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+    >
       {/* نافذة منبثقة تفاعلية عند الضغط على الزر */}
       {isOpen && (
-        <div className="absolute bottom-20 left-0 w-80 bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 text-navy animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="no-drag absolute bottom-20 left-0 w-80 bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 text-navy animate-in fade-in slide-in-from-bottom-4 duration-300 cursor-default">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
@@ -82,7 +147,7 @@ export function FloatingContact() {
 
       {/* الزر العائم الأساسي (Floating Action Button) */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleButtonClick}
         className="relative group flex items-center justify-center w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 focus:outline-none"
         aria-label="Quick Contact"
       >
