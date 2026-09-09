@@ -3,10 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { put } from "@vercel/blob";
 import { db } from "@/lib/db";
 import { documents } from "@/lib/schema";
-import type { InferInsertModel } from "drizzle-orm";
 import { getCurrentUserSession } from "@/lib/auth";
-
-type InsertDocument = InferInsertModel<typeof documents>;
 
 export async function POST(request: Request) {
   try {
@@ -47,13 +44,13 @@ export async function POST(request: Request) {
       .insert(documents)
       .values({
         applicationId: parseInt(applicationId, 10),
-        userId: parseInt(user.id, 10),
+        userId: user.id,
         fileName: file.name, // Keep original name for display
         fileUrl: blob.url,
         documentType,
         fileSize: file.size,
         status: "UPLOADED",
-      } as InsertDocument)
+      })
       .returning();
 
     return NextResponse.json({

@@ -9,20 +9,9 @@ import { LoanCalculator } from '@/components/loan-calculator'; // استيراد
 import { db } from "@/lib/db"; 
 import { loanPrograms } from "@/lib/schema";
 import { eq } from "drizzle-orm";
+import type { InferSelectModel } from "drizzle-orm";
 
-interface LoanProgram {
-  id: number;
-  name: string;
-  subtitle: string;
-  description: string;
-  slug: string;
-  icon: string;
-  benefits: string[];
-  loanType: string;
-  details?: { title: string; content: string }[];
-  rate: number | string | null; 
-  imageUrl?: string; 
-}
+type LoanProgram = InferSelectModel<typeof loanPrograms>;
 
 // جلب بيانات القرض من قاعدة البيانات باستخدام slug
 async function getLoanProgram(slug: string): Promise<LoanProgram | null> {
@@ -33,7 +22,7 @@ async function getLoanProgram(slug: string): Promise<LoanProgram | null> {
       .where(eq(loanPrograms.slug, slug))
       .limit(1);
 
-    return (results[0] as unknown as LoanProgram) || null;
+    return results[0] ?? null;
   } catch (error) {
     console.error("Error fetching loan program:", error);
     return null;
@@ -122,25 +111,11 @@ export default async function LoanProgramPage({ params }: Props) {
             {/* Right Column with Calculator */}
             <div className="lg:col-span-5 space-y-8">
               <LoanCalculator 
-                loanType={data.loanType}
-                rate={data.rate} 
+                loanType="Mortgage"
+                rate={data.defaultInterestRate}
                 loanName={data.name}
               />
             </div>
-
-            {/* قسم التفاصيل الإضافية */}
-            {data.details && data.details.length > 0 && (
-              <div className="lg:col-span-12 pt-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {data.details.map((detail, index) => (
-                    <div key={index} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                      <h4 className="font-bold text-navy text-sm mb-2">{detail.title}</h4>
-                      <p className="text-xs text-gray-600 leading-relaxed">{detail.content}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <div className="lg:col-span-12 bg-white p-10 rounded-3xl shadow-card-soft border border-gray-100 flex flex-col items-center text-center relative overflow-hidden">
                <div className="absolute top-0 right-0 w-32 h-32 bg-silver-light rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>

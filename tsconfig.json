@@ -20,6 +20,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "strictNullChecks": true,
     "jsx": "react-jsx",
     "plugins": [
       {

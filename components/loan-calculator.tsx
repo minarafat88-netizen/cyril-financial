@@ -10,6 +10,13 @@ interface LoanCalculatorProps {
   loanName: string;
 }
 
+type AmortizationPoint = {
+  year: number;
+  interest: number;
+  principal: number;
+  balance: number;
+};
+
 export function LoanCalculator({ loanType, rate, loanName }: LoanCalculatorProps) {
   const [homeValue, setHomeValue] = useState<number>(350000);
   const [downPaymentPercent, setDownPaymentPercent] = useState<number>(loanType === 'FHA' ? 3.5 : (loanType === 'VA' ? 0 : 10));
@@ -69,7 +76,7 @@ export function LoanCalculator({ loanType, rate, loanName }: LoanCalculatorProps
     const totalMonthlyPayment = monthlyPI + monthlyMIP + monthlyTaxes + monthlyInsurance;
 
     // Calculate amortization schedule for the chart
-    const amortizationData = [];
+    const amortizationData: AmortizationPoint[] = [];
     let remainingBalance = totalLoanAmount;
     for (let i = 1; i <= totalPayments; i++) {
       const interestForMonth = remainingBalance * monthlyRate;

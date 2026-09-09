@@ -18,11 +18,9 @@ export default function CreateLoanPage() {
     slug: "",
     subtitle: "",
     description: "",
-    loanType: "",
-    rate: "",
+    defaultInterestRate: "",
     icon: "",
     imageUrl: "",
-    sortOrder: "0",
   });
 
   // Dynamic Array for Benefits
@@ -189,40 +187,14 @@ export default function CreateLoanPage() {
                 <h2 className="text-lg font-bold text-navy border-b border-gray-100 pb-3">Settings</h2>
                 
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Loan Category Type</label>
-                  <select 
-                    value={formData.loanType} 
-                    onChange={(e) => setFormData({ ...formData, loanType: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500 cursor-pointer"
-                  >
-                    <option value="">Select Type...</option>
-                    <option value="PURCHASE">Home Purchase</option>
-                    <option value="REFINANCE">Refinance</option>
-                    <option value="COMMERCIAL">Commercial</option>
-                    <option value="INVESTMENT">Investment</option>
-                  </select>
-                </div>
-
-                <div>
                   <label className="block text-xs font-bold text-gray-700 mb-1">Default Interest Rate (%)</label>
                   <input 
                     type="number" 
                     step="0.01"
-                    value={formData.rate} 
-                    onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
+                    value={formData.defaultInterestRate} 
+                    onChange={(e) => setFormData({ ...formData, defaultInterestRate: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500" 
                     placeholder="e.g., 5.75" 
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Sort Order</label>
-                  <input 
-                    type="number" 
-                    value={formData.sortOrder} 
-                    onChange={(e) => setFormData({ ...formData, sortOrder: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500" 
-                    placeholder="0" 
                   />
                 </div>
               </div>

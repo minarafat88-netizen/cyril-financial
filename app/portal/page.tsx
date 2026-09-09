@@ -8,6 +8,7 @@ import { Header } from '@/components/layout/header';
 import { auth, signOut } from '@/lib/auth'; // Ensure this path matches your NextAuth configuration
 import { db } from '@/lib/db';
 import { applications as applicationsTable } from '@/lib/schema';
+import type { InferSelectModel } from 'drizzle-orm';
 import { eq } from 'drizzle-orm';
 
 // Notice that the component is async to support server-side data fetching
@@ -31,7 +32,7 @@ export default async function ServerPortalPage() {
   const userEmail = session.user.email; // Extracting email to query the database
 
   // 2. Fetch the user's loan application data from the Drizzle database
-  let applicationRecord = null;
+  let applicationRecord: InferSelectModel<typeof applicationsTable> | null = null;
   let appStatusError = "";
 
   try {

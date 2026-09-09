@@ -6,8 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Landmark, Plus, Trash2, ArrowLeft, Save, Upload, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { updateLoanProgram } from "../../actions";
+import type { InferSelectModel } from "drizzle-orm";
+import type { loanPrograms } from "@/lib/schema";
 
-export default function EditLoanForm({ initialData }: { initialData: any }) {
+type LoanProgramRecord = InferSelectModel<typeof loanPrograms>;
+
+export default function EditLoanForm({ initialData }: { initialData: LoanProgramRecord }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -18,11 +22,9 @@ export default function EditLoanForm({ initialData }: { initialData: any }) {
     slug: initialData.slug || "",
     subtitle: initialData.subtitle || "",
     description: initialData.description || "",
-    loanType: initialData.loanType || "",
-    rate: initialData.rate ? initialData.rate.toString() : "",
+    defaultInterestRate: initialData.defaultInterestRate?.toString() || "",
     icon: initialData.icon || "Home",
     imageUrl: initialData.imageUrl || "",
-    sortOrder: initialData.sortOrder !== null && initialData.sortOrder !== undefined ? initialData.sortOrder.toString() : "0",
   });
 
   // Dynamic Array for Benefits initialized safely
@@ -188,39 +190,14 @@ export default function EditLoanForm({ initialData }: { initialData: any }) {
                 <h2 className="text-lg font-bold text-navy border-b border-gray-100 pb-3">Settings</h2>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Loan Category Type</label>
-                  <select 
-                    value={formData.loanType} 
-                    onChange={(e) => setFormData({ ...formData, loanType: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500 cursor-pointer"
-                  >
-                    <option value="">Select Type...</option>
-                    <option value="PURCHASE">Home Purchase</option>
-                    <option value="REFINANCE">Refinance</option>
-                    <option value="COMMERCIAL">Commercial</option>
-                    <option value="INVESTMENT">Investment</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Interest Rate (%) - Rate</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Default Interest Rate (%)</label>
                   <input 
                     type="number" 
-                    step="0.001"
-                    value={formData.rate} 
-                    onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
+                    step="0.01"
+                    value={formData.defaultInterestRate} 
+                    onChange={(e) => setFormData({ ...formData, defaultInterestRate: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500"
-                    placeholder="e.g., 6.125" 
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Sort Order</label>
-                  <input 
-                    type="number" 
-                    value={formData.sortOrder} 
-                    onChange={(e) => setFormData({ ...formData, sortOrder: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-navy bg-gray-50 focus:outline-none focus:border-blue-500"
+                    placeholder="e.g., 5.75" 
                   />
                 </div>
               </div>

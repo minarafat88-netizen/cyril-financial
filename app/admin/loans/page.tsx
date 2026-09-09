@@ -12,7 +12,7 @@ export default async function AdminLoansPage() {
     redirect("/portal");
   }
 
-  // 2. DATA FETCHING: Get all loan programs, ordered by sortOrder or createdAt
+  // 2. DATA FETCHING: Get all loan programs, newest first
   const dbLoans = await db
     .select()
     .from(loanPrograms)

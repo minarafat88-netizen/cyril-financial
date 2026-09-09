@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { users, type NewUser } from '@/lib/schema';
+import { users, type NewUser, type UserRole } from '@/lib/schema';
 import { eq, or } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
 
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Determine user role - 'SUPER_ADMIN' is granted here
-    const userRole = email.toLowerCase() === 'minarafat88@gmail.com' ? 'SUPER_ADMIN' : 'user';
+    const userRole: UserRole = email.toLowerCase() === 'minarafat88@gmail.com' ? 'SUPER_ADMIN' : 'CLIENT';
 
     // Create a new user
     const newUser = {

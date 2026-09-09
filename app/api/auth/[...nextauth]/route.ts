@@ -39,15 +39,13 @@ export const authOptions = {
           .where(eq(users.email, credentials.email.toLowerCase()))
           .limit(1);
 
-        if (userResult.length === 0 || !userResult[0].password) {
+        const password = userResult[0]?.password;
+        if (!password) {
           return null;
         }
 
         const user: User = userResult[0];
-        const passwordMatch = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
+        const passwordMatch = await bcrypt.compare(credentials.password, password);
 
         if (!passwordMatch) {
           return null;

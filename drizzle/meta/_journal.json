@@ -29,6 +29,20 @@
       "when": 1786375554441,
       "tag": "0003_silly_bloodstrike",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788871627436,
+      "tag": "0004_amused_riptide",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788950287437,
+      "tag": "0005_concerned_shotgun",
+      "breakpoints": true
     }
   ]
 }

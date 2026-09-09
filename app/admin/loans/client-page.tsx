@@ -2,22 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { Landmark, Search, Plus, Edit3, Trash2, AlertCircle } from "lucide-react";
+import { Landmark, Search, Plus, Edit3, Trash2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { deleteLoanProgram } from "./actions";
+import { deleteLoanProgram, toggleLoanStatus } from "./actions";
+import type { InferSelectModel } from "drizzle-orm";
+import type { loanPrograms } from "@/lib/schema";
 
-// Type definition (تم إزالة slug لعدم الحاجة إليه هنا)
-type LoanProgramRecord = {
-  id: number;
-  name: string;
-  subtitle: string | null;
-  description: string | null;
-  loanType: string | null;
-  rate: string | number | null;
-  icon: string | null;
-  sortOrder: number | null;
-  createdAt: Date;
-};
+type LoanProgramRecord = InferSelectModel<typeof loanPrograms>;
 
 export default function LoansClient({ initialData }: { initialData: LoanProgramRecord[] }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,11 +22,17 @@ export default function LoansClient({ initialData }: { initialData: LoanProgramR
     }
   };
 
+    const handleToggleStatus = (id: number, currentStatus: boolean) => {
+    startTransition(async () => {
+      await toggleLoanStatus(id, currentStatus);
+    });
+  };
+
   const filteredLoans = initialData.filter((loan) => {
     return (
       loan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (loan.subtitle && loan.subtitle.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (loan.loanType && loan.loanType.toLowerCase().includes(searchTerm.toLowerCase()))
+      loan.description?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
 
@@ -99,6 +96,7 @@ export default function LoansClient({ initialData }: { initialData: LoanProgramR
                   <th className="py-4 px-6">Subtitle & Description</th>
                   <th className="py-4 px-6">Icon & Type</th>
                   <th className="py-4 px-6">Rate</th>
+                  <th className="py-4 px-6">Status</th>
                   <th className="py-4 px-6 text-right">Actions</th>
                 </tr>
               </thead>
@@ -106,7 +104,7 @@ export default function LoansClient({ initialData }: { initialData: LoanProgramR
                 
                 {filteredLoans.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-12 text-center text-gray-500 font-medium">
+                    <td colSpan={6} className="py-12 text-center text-gray-500 font-medium">
                       <AlertCircle className="w-8 h-8 mx-auto text-gray-400 mb-2" />
                       No loan programs found. Click "Add New Program" to create one.
                     </td>
@@ -116,7 +114,9 @@ export default function LoansClient({ initialData }: { initialData: LoanProgramR
                     <tr key={loan.id} className="hover:bg-gray-50/50 transition-colors">
                       {/* Name Only */}
                       <td className="py-4 px-6 align-top">
-                        <div className="font-bold text-navy">{loan.name}</div>
+                        <div className="font-bold text-navy flex items-center gap-2">
+                          {loan.name}
+                        </div>
                       </td>
 
                       {/* Subtitle & Description */}
@@ -130,12 +130,21 @@ export default function LoansClient({ initialData }: { initialData: LoanProgramR
                         <div className="text-xs font-bold text-navy bg-gray-100 px-2 py-1 rounded-md inline-block mb-1">
                           Icon: {loan.icon || "Default"}
                         </div>
-                        <div className="text-xs text-slate font-medium">{loan.loanType || "N/A"}</div>
+                        <div className="text-xs text-slate font-medium">Loan program</div>
                       </td>
 
                       {/* Rate */}
                       <td className="py-4 px-6 align-top font-bold text-blue-600">
-                        {loan.rate ? `${loan.rate}%` : "Not Set"}
+                        {loan.defaultInterestRate !== null ? `${loan.defaultInterestRate}%` : "Not Set"}
+                      </td>
+
+                      {/* Status Badge */}
+                      <td className="py-4 px-6 align-top">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          loan.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          {loan.isActive ? 'Active (Visible)' : 'Hidden'}
+                        </span>
                       </td>
 
                       {/* Actions (Edit & Delete) */}
@@ -147,6 +156,20 @@ export default function LoansClient({ initialData }: { initialData: LoanProgramR
                         >
                           <Edit3 className="w-4 h-4" /> Edit
                         </Link>
+                        
+                        <button 
+                          onClick={() => handleToggleStatus(loan.id, loan.isActive)}
+                          className={`inline-flex items-center gap-1 p-2 rounded-lg transition-colors cursor-pointer text-xs font-bold ${
+                            loan.isActive 
+                              ? "text-gray-500 hover:text-amber-600 hover:bg-amber-50" 
+                              : "text-amber-600 bg-amber-100 hover:bg-amber-200"
+                          }`}
+                          title={loan.isActive ? "Hide from clients" : "Show to clients"}
+                          disabled={isPending}
+                        >
+                          {loan.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {loan.isActive ? "Hide" : "Show"}
+                        </button>
                         
                         <button 
                           onClick={() => handleDelete(loan.id, loan.name)}
