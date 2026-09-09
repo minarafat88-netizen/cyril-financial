@@ -22,7 +22,7 @@ export default function LoansClient({ initialData }: { initialData: LoanProgramR
     }
   };
 
-    const handleToggleStatus = (id: number, currentStatus: boolean) => {
+  const handleToggleStatus = (id: number, currentStatus: boolean) => {
     startTransition(async () => {
       await toggleLoanStatus(id, currentStatus);
     });
@@ -89,15 +89,15 @@ export default function LoansClient({ initialData }: { initialData: LoanProgramR
           )}
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse min-w-[980px]">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100 text-[11px] font-semibold text-slate uppercase tracking-wider">
-                  <th className="py-4 px-6">Program Name</th>
+                  <th className="py-4 px-6 whitespace-nowrap">Program Name</th>
                   <th className="py-4 px-6">Subtitle & Description</th>
-                  <th className="py-4 px-6">Icon & Type</th>
-                  <th className="py-4 px-6">Rate</th>
-                  <th className="py-4 px-6">Status</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
+                  <th className="py-4 px-6 whitespace-nowrap">Icon & Type</th>
+                  <th className="py-4 px-6 whitespace-nowrap">Rate</th>
+                  <th className="min-w-[165px] py-4 px-6 whitespace-nowrap">Status</th>
+                  <th className="py-4 px-6 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-sm">
@@ -113,20 +113,20 @@ export default function LoansClient({ initialData }: { initialData: LoanProgramR
                   filteredLoans.map((loan) => (
                     <tr key={loan.id} className="hover:bg-gray-50/50 transition-colors">
                       {/* Name Only */}
-                      <td className="py-4 px-6 align-top">
+                      <td className="py-4 px-6 align-middle whitespace-nowrap">
                         <div className="font-bold text-navy flex items-center gap-2">
                           {loan.name}
                         </div>
                       </td>
 
                       {/* Subtitle & Description */}
-                      <td className="py-4 px-6 align-top max-w-xs">
+                      <td className="py-4 px-6 align-middle max-w-xs">
                         <div className="text-xs font-semibold text-gray-700">{loan.subtitle || "No subtitle"}</div>
                         <div className="text-xs text-gray-500 truncate mt-0.5">{loan.description || "No description provided"}</div>
                       </td>
 
                       {/* Icon & Type */}
-                      <td className="py-4 px-6 align-top">
+                      <td className="py-4 px-6 align-middle whitespace-nowrap">
                         <div className="text-xs font-bold text-navy bg-gray-100 px-2 py-1 rounded-md inline-block mb-1">
                           Icon: {loan.icon || "Default"}
                         </div>
@@ -134,51 +134,53 @@ export default function LoansClient({ initialData }: { initialData: LoanProgramR
                       </td>
 
                       {/* Rate */}
-                      <td className="py-4 px-6 align-top font-bold text-blue-600">
+                      <td className="py-4 px-6 align-middle font-bold text-blue-600 whitespace-nowrap">
                         {loan.defaultInterestRate !== null ? `${loan.defaultInterestRate}%` : "Not Set"}
                       </td>
 
                       {/* Status Badge */}
-                      <td className="py-4 px-6 align-top">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      <td className="min-w-[165px] py-4 px-6 align-middle whitespace-nowrap">
+                        <span className={`inline-flex whitespace-nowrap items-center rounded-full px-3 py-1 text-[11px] font-bold tracking-wide ${
                           loan.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                         }`}>
                           {loan.isActive ? 'Active (Visible)' : 'Hidden'}
                         </span>
                       </td>
 
-                      {/* Actions (Edit & Delete) */}
-                      <td className="py-4 px-6 align-top text-right space-x-2">
-                        <Link 
-                          href={`/admin/loans/${loan.id}/edit`}
-                          className="inline-flex items-center gap-1 p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-xs font-bold"
-                          title="Edit Program Details"
-                        >
-                          <Edit3 className="w-4 h-4" /> Edit
-                        </Link>
-                        
-                        <button 
-                          onClick={() => handleToggleStatus(loan.id, loan.isActive)}
-                          className={`inline-flex items-center gap-1 p-2 rounded-lg transition-colors cursor-pointer text-xs font-bold ${
-                            loan.isActive 
-                              ? "text-gray-500 hover:text-amber-600 hover:bg-amber-50" 
-                              : "text-amber-600 bg-amber-100 hover:bg-amber-200"
-                          }`}
-                          title={loan.isActive ? "Hide from clients" : "Show to clients"}
-                          disabled={isPending}
-                        >
-                          {loan.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          {loan.isActive ? "Hide" : "Show"}
-                        </button>
-                        
-                        <button 
-                          onClick={() => handleDelete(loan.id, loan.name)}
-                          className="inline-flex items-center gap-1 p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer text-xs font-bold"
-                          title="Delete Program"
-                          disabled={isPending}
-                        >
-                          <Trash2 className="w-4 h-4" /> Delete
-                        </button>
+                      {/* Actions (Edit, Hide/Show & Delete) */}
+                      <td className="py-4 px-6 align-middle text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link 
+                            href={`/admin/loans/${loan.id}/edit`}
+                            className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-bold text-gray-600 transition-colors hover:bg-blue-50 hover:text-blue-600"
+                            title="Edit Program Details"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" /> Edit
+                          </Link>
+
+                          <button 
+                            onClick={() => handleDelete(loan.id, loan.name)}
+                            className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-bold text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
+                            title="Delete Program"
+                            disabled={isPending}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" /> Delete
+                          </button>
+
+                          <button 
+                            onClick={() => handleToggleStatus(loan.id, loan.isActive)}
+                            className={`inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-bold transition-colors ${
+                              loan.isActive 
+                                ? "text-gray-600 hover:bg-amber-50 hover:text-amber-600" 
+                                : "bg-amber-100 text-amber-700 hover:bg-amber-200"
+                            }`}
+                            title={loan.isActive ? "Hide from clients" : "Show to clients"}
+                            disabled={isPending}
+                          >
+                            {loan.isActive ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            {loan.isActive ? "Hide" : "Show"}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
